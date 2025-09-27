@@ -3,6 +3,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -50,7 +51,13 @@ public class MainBorderPane extends BorderPane{
 		leftPane.setPrefWidth(150);
 		leftPane.setStyle("-fx-background-color: #2e2f30;");
 		
-		Button editButton = new Button("Create/Edit Deployment");
+		//Button to create new deployment
+		Button createButton = new Button("Create Deployment");
+		createButton.setOnAction(event -> { 
+			// Create new pane to replace current center one
+			DeploymentUpsert deploymentPage = new DeploymentUpsert();
+			setCenter(deploymentPage);  
+	    });
 		Label optionsLabel = new Label("Options");
 		
 		// Check Boxes
@@ -67,7 +74,7 @@ public class MainBorderPane extends BorderPane{
 		optionsLabel.setStyle("-fx-text-fill: #f4f4f5; -fx-font-size: 18px;");
 		
 		
-		leftPane.getChildren().addAll(editButton, optionsLabel, podsCheck, deploymentCheck, containerCheck, statsCheck); 
+		leftPane.getChildren().addAll(createButton, optionsLabel, podsCheck, deploymentCheck, containerCheck, statsCheck); 
 		
 		
 		
@@ -83,5 +90,10 @@ public class MainBorderPane extends BorderPane{
 
 
 	}
+	
+	
+	
+
+    // Methods
 
 }

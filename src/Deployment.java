@@ -1,4 +1,7 @@
 import java.util.List;
+
+import javafx.scene.layout.Pane;
+
 import java.util.ArrayList;
 
 public class Deployment {
@@ -46,6 +49,9 @@ public class Deployment {
     public void setReplicas(int replicas) { this.replicas = replicas; }
     
     public List<Pod> getManagedPods() { return managedPods; }
+    
+    
+
     
     // Relationship methods
     public void addManagedPod(Pod pod) {
