@@ -46,6 +46,7 @@ public class Main extends Application{
 		MainBorderPane pane = new MainBorderPane(cluster); // Pass cluster to MainBorderPane
 		Scene scene = new Scene(pane, 500, 500);
 		primaryStage.setScene(scene);
+		primaryStage.setMaximized(true); // fill the screen so I don't have to do it myself
 		primaryStage.show();
 		
 	}

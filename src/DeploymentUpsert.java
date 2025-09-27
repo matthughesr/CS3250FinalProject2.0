@@ -1,5 +1,4 @@
 import java.util.List;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -12,6 +11,9 @@ import javafx.scene.layout.VBox;
 public class DeploymentUpsert extends VBox {
     private Cluster cluster;
     
+    // AI Citation: 
+    // Task: Used ChatGPT to learn how to switch out panes and go back and forth between them
+    // Integration: Took advantage of Runnable to restore original center pane when returning 
     public DeploymentUpsert(Runnable goBack, Cluster cluster) {
         this.cluster = cluster;
     	//styling 
@@ -22,11 +24,15 @@ public class DeploymentUpsert extends VBox {
         // Title (only this is centered)
         Label titleLabel = new Label("Create a new Deployment");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        Label errorLabel = new Label("");
+        errorLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: red;");
 
-        HBox titleBox = new HBox(titleLabel);
+        HBox titleBox = new HBox(titleLabel, errorLabel); // Add labels to HBox pane
         titleBox.setAlignment(Pos.CENTER); // Center the title horizontally
-        getChildren().add(titleBox);
+        getChildren().addAll(titleBox, errorLabel);
 
+        // This is the main part of the form
+        // This is where I will collect user input
         // Deployment Name
         Label deploymentNameLabel = new Label("Deployment Name:");
         TextField deploymentNameTextField = new TextField();
@@ -57,9 +63,11 @@ public class DeploymentUpsert extends VBox {
         TextField replicasTextField = new TextField();
         replicasTextField.setMaxWidth(250);
         
-        // Create button
+        // Create button. This will validate the input and create deployment object
         Button createButton = new Button("Create");
         createButton.setOnAction(event -> { 
+        	errorLabel.setText(""); // clear out old errors
+        	// Get info from text box
             String name = deploymentNameTextField.getText();
             String image = imageTextField.getText();
             String cpu = cpuTextField.getText();
@@ -67,41 +75,40 @@ public class DeploymentUpsert extends VBox {
             String diskSpace = diskTextField.getText();
             int replicas;
             
+            // Validate the data
             if (name.isEmpty()) {
-                showAlert("Deployment name cannot be empty!");
+                errorLabel.setText("Deployment name cannot be empty!");
                 return;
             }
 
             if (image.isEmpty()) {
-                showAlert("Image cannot be empty!");
+            	errorLabel.setText("Image cannot be empty!");
+                return;
+            }
+
+            if (!cpu.matches("\\d+")) {
+            	errorLabel.setText("CPU must be a number!");
+                return;
+            }
+            if (!memory.matches("\\d+")) {
+            	errorLabel.setText("Memory must be a number!");
+                return;
+            }
+            if (!diskSpace.matches("\\d+")) {
+            	errorLabel.setText("Disk space must be a number!");
                 return;
             }
 
             try {
-                replicas = Integer.parseInt(replicasTextField.getText().trim());
-                if (replicas < 1) {
-                    showAlert("Replicas must be at least 1!");
-                    return;
-                }
+            	replicas = Integer.parseInt(replicasTextField.getText().trim());
+            	if (replicas < 1) {
+            		errorLabel.setText("Replicas must be at least 1!");
+            		return;
+            	}
             } catch (NumberFormatException e) {
-                showAlert("Replicas must be a number!");
-                return;
+            	errorLabel.setText("Replicas must be a number!");
+            	return;
             }
-
-            // Optional: validate CPU, memory, disk if needed
-            if (!cpu.matches("\\d+")) {
-                showAlert("CPU must be a number!");
-                return;
-            }
-            if (!memory.matches("\\d+")) {
-                showAlert("Memory must be a number!");
-                return;
-            }
-            if (!diskSpace.matches("\\d+")) {
-                showAlert("Disk space must be a number!");
-                return;
-            }
-
             // Create the deployment object
             Deployment deployment = new Deployment(name, image, replicas);
             deployment.setCpu(cpu);
@@ -111,10 +118,8 @@ public class DeploymentUpsert extends VBox {
             // Add the deployment to the cluster
             cluster.addDeployment(deployment);
             
-            // Show success message
-            showSuccessAlert("Deployment '" + name + "' created successfully!");
             
-			goBack.run();
+			goBack.run(); // Go back to default center pane
         });
 
         // Add everything 
@@ -134,24 +139,5 @@ public class DeploymentUpsert extends VBox {
             ,createButton
         );
     }
-    
-    // Method
-    
-    // Helper method for alerts. 
-
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Invalid Input");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    
-    private void showSuccessAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+ 
 }

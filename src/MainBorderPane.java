@@ -17,6 +17,7 @@ public class MainBorderPane extends BorderPane{
 		this.cluster = cluster;
 
 		/// ----------- TOP PANE ------------------------------------
+		// THis pane will be used for the header. It won't change much
 		HBox topPane = new HBox();
 		topPane.setPrefHeight(75);
 		topPane.setStyle("-fx-background-color:  #111827;"); //dark blue
@@ -30,14 +31,22 @@ public class MainBorderPane extends BorderPane{
         setTop(topPane);
 		
         // ---------------- CENTER PANE ------------------------
-        defaultCenter = new Pane();
+        // This is where most things will happen. This pane will change a lot
+        defaultCenter = new VBox();
         defaultCenter.setStyle("-fx-background-color: #e5e7eb"); //dirty white
         
-//        Label displayDeploymentLabel = new Label(Deployment.toString(););
+        Button refreshButton = new Button("Refresh(click here after creating deployment)");
+        Label displayClusterLabel = new Label(cluster.toDisplayString());
+        
+        refreshButton.setOnAction(event -> { 
+        	displayClusterLabel.setText(cluster.toDisplayString());
+        });
+        defaultCenter.getChildren().addAll(refreshButton, displayClusterLabel);
 		setCenter(defaultCenter);
 		
 		
 		// ----------- BOTTOM PANE ------------------------------
+		// This is going to be used for the footer. Will stay pretty static
 		HBox bottomPane = new HBox();
 		bottomPane.setAlignment(Pos.CENTER);
 		bottomPane.setPadding(new Insets(20, 0, 20, 20));
@@ -51,10 +60,11 @@ public class MainBorderPane extends BorderPane{
 		
 		
 		// -------------- LEFT PANE ------------------------
+		// This pane is used for navigation. 
 		VBox leftPane = new VBox(20); //20 sets the padding between nodes
 		leftPane.setPadding(new Insets(20, 20, 20, 20));
 		leftPane.setAlignment(Pos.TOP_LEFT); 
-		leftPane.setPrefWidth(150);
+		leftPane.setPrefWidth(200);
 		leftPane.setStyle("-fx-background-color: #2e2f30;");
 		
 		//Button to create new deployment
@@ -67,6 +77,7 @@ public class MainBorderPane extends BorderPane{
 		Label optionsLabel = new Label("Options");
 		
 		// Check Boxes
+		// Will be used to filter what is displayed
 		CheckBox podsCheck = new CheckBox("Pods");
 		CheckBox deploymentCheck = new CheckBox("Deployment");
 		CheckBox containerCheck = new CheckBox("Container");

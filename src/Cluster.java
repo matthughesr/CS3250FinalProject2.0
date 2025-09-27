@@ -73,6 +73,31 @@ public class Cluster {
     
     // Utility method
     public String toString() {
-        return "Cluster{name='" + name + "', status='" + status + "', nodes=" + nodes.size() + ", deployments=" + deployments.size() + "}";
+        return "Cluster Name: " + name + ", status: " + status + ", nodes: " + nodes.size() + ", deployments: " + deployments.size();
+    }
+    
+    // Will get cluster info and all deployments and format it for displaying to UI
+    public String toDisplayString() {
+    	//This Method was adapted with the help of Claude AI
+    	// Prompt: "How can I have the cluster toString() method printout all deployments in a clean simple way?"
+    	// Student review: Took advantage of example AI gave of using string builder to format everything,
+    	// 					I mainly needed AI to show me the syntax and how to use string builder
+        StringBuilder sb = new StringBuilder();
+        sb.append("Cluster: ").append(name).append("\n")
+          .append("Status: ").append(status).append("\n")
+          .append("Nodes: ").append(nodes.size()).append("\n")
+          .append("Deployments: ").append(deployments.size());
+        
+        if (!deployments.isEmpty()) {
+            sb.append("\n\nDeployments:");
+            for (Deployment deployment : deployments) {
+                sb.append(String.format("\n• %s (%s) - %d replicas", 
+                         deployment.getName(), 
+                         deployment.getStatus(), 
+                         deployment.getReplicas()));
+            }
+        }
+        
+        return sb.toString();
     }
 }
