@@ -3,10 +3,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application{
+	private static Cluster cluster;
 
 	public static void main(String[] args) {
 		// Create cluster
-		Cluster cluster = new Cluster("MattsCluster");
+		cluster = new Cluster("MattsCluster");
 		
 		// Create nodes and add to cluster
 		Node node1 = new Node("MattsNode", "AMD");
@@ -42,8 +43,7 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
-		MainBorderPane pane = new MainBorderPane(); // Splits into 5 boxes
+		MainBorderPane pane = new MainBorderPane(cluster); // Pass cluster to MainBorderPane
 		Scene scene = new Scene(pane, 500, 500);
 		primaryStage.setScene(scene);
 		primaryStage.show();

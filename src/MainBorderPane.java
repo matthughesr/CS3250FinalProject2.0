@@ -11,8 +11,10 @@ import javafx.scene.layout.VBox;
 
 public class MainBorderPane extends BorderPane{
 	private Pane defaultCenter; // this is the "main" center pane
+	private Cluster cluster;
 	
-	public MainBorderPane() {
+	public MainBorderPane(Cluster cluster) {
+		this.cluster = cluster;
 
 		/// ----------- TOP PANE ------------------------------------
 		HBox topPane = new HBox();
@@ -59,7 +61,7 @@ public class MainBorderPane extends BorderPane{
 		Button createButton = new Button("Create Deployment");
 		createButton.setOnAction(event -> { 
 			// Create new pane to replace current center one
-			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(defaultCenter));
+			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(defaultCenter), cluster);
 			setCenter(deploymentPage);  
 	    });
 		Label optionsLabel = new Label("Options");

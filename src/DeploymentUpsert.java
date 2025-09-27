@@ -10,7 +10,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class DeploymentUpsert extends VBox {
-    public DeploymentUpsert(Runnable goBack) {
+    private Cluster cluster;
+    
+    public DeploymentUpsert(Runnable goBack, Cluster cluster) {
+        this.cluster = cluster;
     	//styling 
         setSpacing(15);
         setPadding(new Insets(20));
@@ -58,7 +61,7 @@ public class DeploymentUpsert extends VBox {
         Button createButton = new Button("Create");
         createButton.setOnAction(event -> { 
             String name = deploymentNameTextField.getText();
-            String image = deploymentNameTextField.getText();
+            String image = imageTextField.getText();
             String cpu = cpuTextField.getText();
             String memory = memoryTextField.getText();
             String diskSpace = diskTextField.getText();
@@ -99,6 +102,18 @@ public class DeploymentUpsert extends VBox {
                 return;
             }
 
+            // Create the deployment object
+            Deployment deployment = new Deployment(name, image, replicas);
+            deployment.setCpu(cpu);
+            deployment.setMemory(memory);
+            deployment.setDiskSpace(diskSpace);
+            
+            // Add the deployment to the cluster
+            cluster.addDeployment(deployment);
+            
+            // Show success message
+            showSuccessAlert("Deployment '" + name + "' created successfully!");
+            
 			goBack.run();
         });
 
@@ -127,6 +142,14 @@ public class DeploymentUpsert extends VBox {
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Invalid Input");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    private void showSuccessAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
