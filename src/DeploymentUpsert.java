@@ -1,5 +1,8 @@
+import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -7,9 +10,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class DeploymentUpsert extends VBox {
-    public DeploymentUpsert() {
+    public DeploymentUpsert(Runnable goBack) {
+    	//styling 
         setSpacing(15);
         setPadding(new Insets(20));
+        setStyle("-fx-background-color: #e5e7eb"); //dirty white
 
         // Title (only this is centered)
         Label titleLabel = new Label("Create a new Deployment");
@@ -51,6 +56,51 @@ public class DeploymentUpsert extends VBox {
         
         // Create button
         Button createButton = new Button("Create");
+        createButton.setOnAction(event -> { 
+            String name = deploymentNameTextField.getText();
+            String image = deploymentNameTextField.getText();
+            String cpu = cpuTextField.getText();
+            String memory = memoryTextField.getText();
+            String diskSpace = diskTextField.getText();
+            int replicas;
+            
+            if (name.isEmpty()) {
+                showAlert("Deployment name cannot be empty!");
+                return;
+            }
+
+            if (image.isEmpty()) {
+                showAlert("Image cannot be empty!");
+                return;
+            }
+
+            try {
+                replicas = Integer.parseInt(replicasTextField.getText().trim());
+                if (replicas < 1) {
+                    showAlert("Replicas must be at least 1!");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Replicas must be a number!");
+                return;
+            }
+
+            // Optional: validate CPU, memory, disk if needed
+            if (!cpu.matches("\\d+")) {
+                showAlert("CPU must be a number!");
+                return;
+            }
+            if (!memory.matches("\\d+")) {
+                showAlert("Memory must be a number!");
+                return;
+            }
+            if (!diskSpace.matches("\\d+")) {
+                showAlert("Disk space must be a number!");
+                return;
+            }
+
+			goBack.run();
+        });
 
         // Add everything 
         getChildren().addAll(
@@ -68,5 +118,17 @@ public class DeploymentUpsert extends VBox {
             , replicasTextField
             ,createButton
         );
+    }
+    
+    // Method
+    
+    // Helper method for alerts. 
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Invalid Input");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

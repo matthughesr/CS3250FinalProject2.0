@@ -10,6 +10,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 public class MainBorderPane extends BorderPane{
+	private Pane defaultCenter; // this is the "main" center pane
+	
 	public MainBorderPane() {
 
 		/// ----------- TOP PANE ------------------------------------
@@ -26,9 +28,9 @@ public class MainBorderPane extends BorderPane{
         setTop(topPane);
 		
         // ---------------- CENTER PANE ------------------------
-		Pane centerPane = new Pane();
-		centerPane.setStyle("-fx-background-color: #e5e7eb"); //dirty white
-		setCenter(centerPane);
+        defaultCenter = new Pane();
+        defaultCenter.setStyle("-fx-background-color: #e5e7eb"); //dirty white
+		setCenter(defaultCenter);
 		
 		
 		// ----------- BOTTOM PANE ------------------------------
@@ -55,7 +57,7 @@ public class MainBorderPane extends BorderPane{
 		Button createButton = new Button("Create Deployment");
 		createButton.setOnAction(event -> { 
 			// Create new pane to replace current center one
-			DeploymentUpsert deploymentPage = new DeploymentUpsert();
+			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(defaultCenter));
 			setCenter(deploymentPage);  
 	    });
 		Label optionsLabel = new Label("Options");
