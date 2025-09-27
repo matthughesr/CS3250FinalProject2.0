@@ -30,6 +30,8 @@ public class MainBorderPane extends BorderPane{
         // ---------------- CENTER PANE ------------------------
         defaultCenter = new Pane();
         defaultCenter.setStyle("-fx-background-color: #e5e7eb"); //dirty white
+        
+//        Label displayDeploymentLabel = new Label(Deployment.toString(););
 		setCenter(defaultCenter);
 		
 		

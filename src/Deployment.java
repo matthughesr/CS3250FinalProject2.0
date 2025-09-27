@@ -24,6 +24,7 @@ public class Deployment {
         this.cpu = "0";
         this.memory = "0";
         this.diskSpace = "0";
+        
     }
     
     // Getters and Setters
