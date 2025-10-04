@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -12,9 +14,11 @@ import javafx.scene.layout.VBox;
 public class MainBorderPane extends BorderPane{
 	private Pane defaultCenter; // this is the "main" center pane
 	private Cluster cluster;
-	
-	public MainBorderPane(Cluster cluster) {
+	private ClusterManager clusterManager;
+
+	public MainBorderPane(Cluster cluster, ClusterManager clusterManager) {
 		this.cluster = cluster;
+		this.clusterManager = clusterManager;
 
 		/// ----------- TOP PANE ------------------------------------
 		// THis pane will be used for the header. It won't change much
@@ -27,6 +31,12 @@ public class MainBorderPane extends BorderPane{
         Label headerLabel = new Label("Kubernetes Dashboard");
         headerLabel.setStyle("-fx-text-fill: #f4f4f5; -fx-font-size: 24px; -fx-font-weight: bold;"); //white
         
+        // navigate to the default pane when label is clicked
+        headerLabel.setOnMouseClicked(event -> {
+        	refreshDefaultPane();
+        	setCenter(defaultCenter);
+        });
+
         topPane.getChildren().add(headerLabel); 
         setTop(topPane);
 		
@@ -34,14 +44,11 @@ public class MainBorderPane extends BorderPane{
         // This is where most things will happen. This pane will change a lot
         defaultCenter = new VBox();
         defaultCenter.setStyle("-fx-background-color: #e5e7eb"); //dirty white
-        
-        Button refreshButton = new Button("Refresh(click here after creating deployment)");
-        Label displayClusterLabel = new Label(cluster.toDisplayString());
-        
-        refreshButton.setOnAction(event -> { 
-        	displayClusterLabel.setText(cluster.toDisplayString());
-        });
-        defaultCenter.getChildren().addAll(refreshButton, displayClusterLabel);
+        defaultCenter.setPadding(new Insets(20));
+
+        // Display all clusters
+        updateClusterDisplay();
+
 		setCenter(defaultCenter);
 		
 		
@@ -67,13 +74,23 @@ public class MainBorderPane extends BorderPane{
 		leftPane.setPrefWidth(200);
 		leftPane.setStyle("-fx-background-color: #2e2f30;");
 		
+		
+		//Button to create new Cluster
+		Button createClusterButton = new Button("Create Cluster");
+		createClusterButton.setOnAction(event -> {
+			// Create new pane to replace current center one
+			ClusterUpsert clusterPage = new ClusterUpsert(() -> setCenter(defaultCenter), clusterManager, this);
+			setCenter(clusterPage);
+		});
+		
 		//Button to create new deployment
 		Button createButton = new Button("Create Deployment");
-		createButton.setOnAction(event -> { 
+		createButton.setOnAction(event -> {
 			// Create new pane to replace current center one
-			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(defaultCenter), cluster);
-			setCenter(deploymentPage);  
+			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(defaultCenter), clusterManager, this);
+			setCenter(deploymentPage);
 	    });
+		
 		Label optionsLabel = new Label("Options");
 		
 		// Check Boxes
@@ -91,7 +108,7 @@ public class MainBorderPane extends BorderPane{
 		optionsLabel.setStyle("-fx-text-fill: #f4f4f5; -fx-font-size: 18px;");
 		
 		
-		leftPane.getChildren().addAll(createButton, optionsLabel, podsCheck, deploymentCheck, containerCheck, statsCheck); 
+		leftPane.getChildren().addAll(createClusterButton, createButton, optionsLabel, podsCheck, deploymentCheck, containerCheck, statsCheck); 
 		
 		
 		
@@ -112,5 +129,47 @@ public class MainBorderPane extends BorderPane{
 	
 
     // Methods
+	
+	// Public facing method for updating center pane display
+	public void refreshDefaultPane() {
+		updateClusterDisplay(); 
+	}
+
+	
+	
+	// This will make sure that the labels displaying the cluster info is up to date
+	private void updateClusterDisplay() {
+		// Clear the current display
+		defaultCenter.getChildren().clear();
+
+		// Add title
+		Label titleLabel = new Label("All Clusters");
+		titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #111827;");
+		defaultCenter.getChildren().add(titleLabel);
+
+		// Get clusters from business logic layer
+		List<Cluster> clusters = clusterManager.getAllClusters();
+
+		// Loop through all clusters and display each one
+		if (clusters.isEmpty()) {
+			Label emptyLabel = new Label("No clusters yet. Create one to get started!");
+			emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6b7280;");
+			defaultCenter.getChildren().add(emptyLabel);
+		} else {
+			for (Cluster c : clusters) {
+				// Create a VBox for each cluster
+				VBox clusterBox = new VBox(10);
+				clusterBox.setPadding(new Insets(15));
+				clusterBox.setStyle("-fx-background-color: white; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+				// Cluster info
+				Label clusterLabel = new Label(c.toDisplayString());
+				clusterLabel.setStyle("-fx-font-size: 14px; -fx-font-family: monospace;");
+
+				clusterBox.getChildren().add(clusterLabel);
+				defaultCenter.getChildren().add(clusterBox);
+			}
+		}
+	}
 
 }

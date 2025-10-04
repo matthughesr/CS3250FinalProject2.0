@@ -1,21 +1,25 @@
+import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class DeploymentUpsert extends VBox {
-    private Cluster cluster;
-    
-    // AI Citation: 
+    private ClusterManager clusterManager;
+    private MainBorderPane mainBorderPane;
+
+    // AI Citation:
     // Task: Used ChatGPT to learn how to switch out panes and go back and forth between them
-    // Integration: Took advantage of Runnable to restore original center pane when returning 
-    public DeploymentUpsert(Runnable goBack, Cluster cluster) {
-        this.cluster = cluster;
+    // Integration: Took advantage of Runnable to restore original center pane when returning
+    public DeploymentUpsert(Runnable goBack, ClusterManager clusterManager, MainBorderPane mainBorderPane) {
+        this.clusterManager = clusterManager;
+        this.mainBorderPane = mainBorderPane;
     	//styling 
         setSpacing(15);
         setPadding(new Insets(20));
@@ -33,6 +37,21 @@ public class DeploymentUpsert extends VBox {
 
         // This is the main part of the form
         // This is where I will collect user input
+
+        // Cluster Selection Dropdown
+        Label clusterLabel = new Label("Select Cluster:");
+        ComboBox<String> clusterComboBox = new ComboBox<>();
+        List<Cluster> clusters = clusterManager.getAllClusters();
+        // add clusters to dropdown 
+        for (Cluster c : clusters) {
+            clusterComboBox.getItems().add(c.getName());
+        }
+        if (!clusters.isEmpty()) {
+            clusterComboBox.setValue(clusters.get(0).getName());
+        }
+        // Make sure its not too big
+        clusterComboBox.setMaxWidth(250);
+
         // Deployment Name
         Label deploymentNameLabel = new Label("Deployment Name:");
         TextField deploymentNameTextField = new TextField();
@@ -65,17 +84,23 @@ public class DeploymentUpsert extends VBox {
         
         // Create button. This will validate the input and create deployment object
         Button createButton = new Button("Create");
-        createButton.setOnAction(event -> { 
+        createButton.setOnAction(event -> {
         	errorLabel.setText(""); // clear out old errors
         	// Get info from text box
+            String selectedClusterName = clusterComboBox.getValue();
             String name = deploymentNameTextField.getText();
             String image = imageTextField.getText();
             String cpu = cpuTextField.getText();
             String memory = memoryTextField.getText();
             String diskSpace = diskTextField.getText();
             int replicas;
-            
+
             // Validate the data
+            if (selectedClusterName == null || selectedClusterName.isEmpty()) {
+                errorLabel.setText("Please select a cluster!");
+                return;
+            }
+
             if (name.isEmpty()) {
                 errorLabel.setText("Deployment name cannot be empty!");
                 return;
@@ -114,17 +139,21 @@ public class DeploymentUpsert extends VBox {
             deployment.setCpu(cpu);
             deployment.setMemory(memory);
             deployment.setDiskSpace(diskSpace);
+
+            // Add deployment to the selected cluster using business logic layer
+            clusterManager.addDeploymentToCluster(selectedClusterName, deployment);
             
-            // Add the deployment to the cluster
-            cluster.addDeployment(deployment);
+            mainBorderPane.refreshDefaultPane();
             
             
 			goBack.run(); // Go back to default center pane
         });
 
-        // Add everything 
+        // Add everything
         getChildren().addAll(
-            deploymentNameLabel
+            clusterLabel
+            , clusterComboBox
+            , deploymentNameLabel
             , deploymentNameTextField
             , imageLabel
             , imageTextField
@@ -136,7 +165,7 @@ public class DeploymentUpsert extends VBox {
             , diskTextField
             , replicasLabel
             , replicasTextField
-            ,createButton
+            , createButton
         );
     }
  
