@@ -11,6 +11,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
+
+// Main colors:
+// #111827 dark blue
+// #e5e7eb dirty white
+//  #2e2f30  grey
+
+
 public class MainBorderPane extends BorderPane{
 	private Pane defaultCenter; // this is the "main" center pane
 	private Cluster cluster;
@@ -163,7 +170,30 @@ public class MainBorderPane extends BorderPane{
 			}
 		}
 	}
+	// This method will create a HBox to visually represent a pod
 	
+	private HBox createPodBox(Pod pod) {
+		HBox podBox = new HBox(10);
+		podBox.setPadding(new Insets(10));
+		podBox.setStyle(
+				"-fx-background-color: #e5e7eb;" + // dirty white
+				"-fx-border-radius: 10;" +
+				"-fx-background-radius: 10;"
+			);
+		
+		podBox.setMinHeight(50);
+		podBox.setMinWidth(50);
+		Label podNameLabel = new Label("Pod: " + pod.getName());
+		podNameLabel.setStyle(
+			"-fx-font-size: 16px;" +
+			"-fx-font-weight: bold;" +
+			"-fx-text-fill: black;"
+		);
+
+		podBox.getChildren().add(podNameLabel);
+		
+		return podBox;
+	}
 	// This method will create a HBox to visually represent a node
 	private HBox createNodeBox(Node node) {
 		HBox nodeBox = new HBox(10);
@@ -186,6 +216,11 @@ public class MainBorderPane extends BorderPane{
 		);
 
 		nodeBox.getChildren().add(nodeNameLabel);
+		
+		for(Pod pod : node.getPods()) {
+			HBox podBox = createPodBox(pod);
+			nodeBox.getChildren().add(podBox);
+		}
 
 		return nodeBox;
 	}

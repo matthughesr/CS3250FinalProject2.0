@@ -31,6 +31,12 @@ public class Main extends Application{
 		Pod nginxPod2 = new Pod("EnginxPod2", "apps");
 		nginxPod2.addContainer(new Container("nginx", "nginx"));
 		node2.addPod(nginxPod2);
+		
+		Pod nginxPod3 = new Pod("EnginxPod3", "apps");
+		nginxPod2.addContainer(new Container("nginx", "nginx"));
+		node2.addPod(nginxPod3);
+		
+		
 
 		// Create deployment and add to cluster
 		Deployment nginxDeployment = new Deployment("EnginxDeployment", "nginx", 2);
