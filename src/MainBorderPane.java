@@ -72,7 +72,7 @@ public class MainBorderPane extends BorderPane{
 		leftPane.setPadding(new Insets(20, 20, 20, 20));
 		leftPane.setAlignment(Pos.TOP_LEFT); 
 		leftPane.setPrefWidth(200);
-		leftPane.setStyle("-fx-background-color: #2e2f30;"); // gray
+		leftPane.setStyle("-fx-background-color: #2e2f30;"); // grey
 		
 		
 		//Button to create new Cluster
@@ -163,6 +163,34 @@ public class MainBorderPane extends BorderPane{
 			}
 		}
 	}
+	
+	// This method will create a HBox to visually represent a node
+	private HBox createNodeBox(Node node) {
+		HBox nodeBox = new HBox(10);
+		nodeBox.setPadding(new Insets(10));
+		VBox.setMargin(nodeBox, new Insets(0, 0, 10, 0)); // Add bottom margin for spacing
+		nodeBox.setStyle(
+			"-fx-background-color: #2e2f30;" + // grey
+			"-fx-border-radius: 10;" +
+			"-fx-background-radius: 10;"
+		);
+		nodeBox.setMinHeight(75);
+		nodeBox.setMinWidth(150);
+
+		// Header label to identify node
+		Label nodeNameLabel = new Label("Node: " + node.getName());
+		nodeNameLabel.setStyle(
+			"-fx-font-size: 16px;" +
+			"-fx-font-weight: bold;" +
+			"-fx-text-fill: white;"
+		);
+
+		nodeBox.getChildren().add(nodeNameLabel);
+
+		return nodeBox;
+	}
+	
+	
 	// AI Citation: Claude Code was used here for the help of the overall logic of the method
 	// This method will create a vbox to visually represent a cluster
 	private VBox createClusterBox(Cluster cluster) {
@@ -196,7 +224,14 @@ public class MainBorderPane extends BorderPane{
 			"-fx-text-fill: white;"
 		);
 
+		// Add cluster header and info to the box
 		clusterBox.getChildren().addAll(clusterNameLabel, clusterInfoLabel);
+
+		// Loop through each node in the cluster and create a node box
+		for (Node node : cluster.getNodes()) {
+			HBox nodeBox = createNodeBox(node);
+			clusterBox.getChildren().add(nodeBox);
+		}
 
 		return clusterBox;
 	}
