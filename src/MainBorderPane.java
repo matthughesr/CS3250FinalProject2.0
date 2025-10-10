@@ -72,7 +72,7 @@ public class MainBorderPane extends BorderPane{
 		leftPane.setPadding(new Insets(20, 20, 20, 20));
 		leftPane.setAlignment(Pos.TOP_LEFT); 
 		leftPane.setPrefWidth(200);
-		leftPane.setStyle("-fx-background-color: #2e2f30;");
+		leftPane.setStyle("-fx-background-color: #2e2f30;"); // gray
 		
 		
 		//Button to create new Cluster
@@ -157,19 +157,48 @@ public class MainBorderPane extends BorderPane{
 			defaultCenter.getChildren().add(emptyLabel);
 		} else {
 			for (Cluster c : clusters) {
-				// Create a VBox for each cluster
-				VBox clusterBox = new VBox(10);
-				clusterBox.setPadding(new Insets(15));
-				clusterBox.setStyle("-fx-background-color: white; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;");
-
-				// Cluster info
-				Label clusterLabel = new Label(c.toDisplayString());
-				clusterLabel.setStyle("-fx-font-size: 14px; -fx-font-family: monospace;");
-
-				clusterBox.getChildren().add(clusterLabel);
+				// Create a visual box for each cluster
+				VBox clusterBox = createClusterBox(c);
 				defaultCenter.getChildren().add(clusterBox);
 			}
 		}
+	}
+	// AI Citation: Claude Code was used here for the help of the overall logic of the method
+	// This method will create a vbox to visually represent a cluster
+	private VBox createClusterBox(Cluster cluster) {
+		VBox clusterBox = new VBox(10);
+		clusterBox.setPadding(new Insets(20));
+		VBox.setMargin(clusterBox, new Insets(0, 0, 15, 0)); // Add bottom margin for spacing
+		clusterBox.setStyle(
+			"-fx-background-color: #111827;" + // Blue background
+			"-fx-border-radius: 10;" +
+			"-fx-background-radius: 10;"
+		);
+		clusterBox.setMinHeight(150);
+		clusterBox.setMaxWidth(800);
+
+		// Cluster header with name
+		Label clusterNameLabel = new Label("Cluster: " + cluster.getName());
+		clusterNameLabel.setStyle(
+			"-fx-font-size: 20px;" +
+			"-fx-font-weight: bold;" +
+			"-fx-text-fill: white;"
+		);
+
+		// Cluster info
+		Label clusterInfoLabel = new Label(
+			"Status: " + cluster.getStatus() +
+			" | Nodes: " + cluster.getNodeCount() +
+			" | Deployments: " + cluster.getDeploymentCount()
+		);
+		clusterInfoLabel.setStyle(
+			"-fx-font-size: 14px;" +
+			"-fx-text-fill: white;"
+		);
+
+		clusterBox.getChildren().addAll(clusterNameLabel, clusterInfoLabel);
+
+		return clusterBox;
 	}
 
 }
