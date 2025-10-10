@@ -31,7 +31,7 @@ public class ClusterManager {
         return clusters;
     }
 
-    // return the name of a specific cluster
+    // returns a cluster based on its name
     public Cluster getClusterByName(String name) {
         for (Cluster c : clusters) {
             if (c.getName().equals(name)) {

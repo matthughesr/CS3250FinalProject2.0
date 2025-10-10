@@ -143,6 +143,22 @@ public class DeploymentUpsert extends VBox {
             // Add deployment to the selected cluster using business logic layer
             clusterManager.addDeploymentToCluster(selectedClusterName, deployment);
             
+            // Create nodes on cluster if none
+            Cluster cluster = clusterManager.getClusterByName(selectedClusterName);
+            if(cluster.getNodeCount() == 0) {
+            	Node newNode = new Node("NewNode", "AMD");
+            	cluster.addNode(newNode);
+            	
+            	// Add pods to node
+            	for(int i = 0; i < replicas; i++) {
+            		Pod pod = new Pod(image + "Pod", "newNamespace");
+            		newNode.addPod(pod); 
+            		Container container = new Container(image + "Container", image);
+            		pod.addContainer(container);
+            	}
+            }
+            
+            
             mainBorderPane.refreshDefaultPane();
             
             
