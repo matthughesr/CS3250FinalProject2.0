@@ -178,19 +178,19 @@ public class MainBorderPane extends BorderPane{
 		podBox.setStyle(
 				"-fx-background-color: #e5e7eb;" + // dirty white
 				"-fx-border-radius: 10;" +
-				"-fx-background-radius: 10;"
+				"-fx-background-radius: 10;" +
+				"-fx-font-size: 16px;" +
+				"-fx-font-weight: bold;" +
+				"-fx-text-fill: black;"
 			);
 		
 		podBox.setMinHeight(50);
 		podBox.setMinWidth(50);
 		Label podNameLabel = new Label("Pod: " + pod.getName());
-		podNameLabel.setStyle(
-			"-fx-font-size: 16px;" +
-			"-fx-font-weight: bold;" +
-			"-fx-text-fill: black;"
-		);
+		Label podStatusLabel = new Label("Status: " + pod.getStatus());
 
-		podBox.getChildren().add(podNameLabel);
+
+		podBox.getChildren().addAll(podNameLabel, podStatusLabel);
 		
 		return podBox;
 	}

@@ -9,7 +9,6 @@ public class Pod {
     private String ip;
     private String cpu;
     private String memory;
-    private String image;
     private String diskSpace;
     private List<Container> containers;
     
@@ -46,9 +45,9 @@ public class Pod {
     public String getMemory() { return memory; }
     public void setMemory(String memory) { this.memory = memory; }
     
-    public String getImage() { return image; }
-    public void setImage(String image) { this.image = image; }
-    
+//    public String getImage() { return image; }
+//    public void setImage(String image) { this.image = image; }
+//    
     public String getDiskSpace() { return diskSpace; }
     public void setDiskSpace(String diskSpace) { this.diskSpace = diskSpace; }
     
