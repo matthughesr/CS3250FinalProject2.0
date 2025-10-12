@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -19,7 +20,8 @@ import javafx.scene.layout.VBox;
 
 
 public class MainBorderPane extends BorderPane{
-	private Pane defaultCenter; // this is the "main" center pane
+	private VBox defaultCenter; // this is the "main" center pane content
+	private ScrollPane scrollPane; // ScrollPane wrapper for the center content
 	private Cluster cluster;
 	private ClusterManager clusterManager;
 
@@ -41,7 +43,7 @@ public class MainBorderPane extends BorderPane{
         // navigate to the default pane when label is clicked
         headerLabel.setOnMouseClicked(event -> {
         	refreshDefaultPane();
-        	setCenter(defaultCenter);
+        	setCenter(scrollPane);
         });
 
         topPane.getChildren().add(headerLabel); 
@@ -53,10 +55,15 @@ public class MainBorderPane extends BorderPane{
         defaultCenter.setStyle("-fx-background-color: #e5e7eb"); //dirty white
         defaultCenter.setPadding(new Insets(20));
 
+        // Wrap the content in a ScrollPane
+        scrollPane = new ScrollPane(defaultCenter);
+        scrollPane.setFitToWidth(true); // Makes content use full width
+        scrollPane.setStyle("-fx-background-color: #e5e7eb;"); // Match background color
+
         // Display all clusters
         updateClusterDisplay();
 
-		setCenter(defaultCenter);
+		setCenter(scrollPane);
 		
 		
 		// ----------- BOTTOM PANE ------------------------------
@@ -86,15 +93,15 @@ public class MainBorderPane extends BorderPane{
 		Button createClusterButton = new Button("Create Cluster");
 		createClusterButton.setOnAction(event -> {
 			// Create new pane to replace current center one
-			ClusterUpsert clusterPage = new ClusterUpsert(() -> setCenter(defaultCenter), clusterManager, this);
+			ClusterUpsert clusterPage = new ClusterUpsert(() -> setCenter(scrollPane), clusterManager, this);
 			setCenter(clusterPage);
 		});
-		
+
 		//Button to create new deployment
 		Button createButton = new Button("Create Deployment");
 		createButton.setOnAction(event -> {
 			// Create new pane to replace current center one
-			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(defaultCenter), clusterManager, this);
+			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(scrollPane), clusterManager, this);
 			setCenter(deploymentPage);
 	    });
 		
@@ -178,20 +185,49 @@ public class MainBorderPane extends BorderPane{
 		podBox.setStyle(
 				"-fx-background-color: #e5e7eb;" + // dirty white
 				"-fx-border-radius: 10;" +
-				"-fx-background-radius: 10;" +
-				"-fx-font-size: 16px;" +
-				"-fx-font-weight: bold;" +
-				"-fx-text-fill: black;"
+				"-fx-background-radius: 10;"
 			);
-		
-		podBox.setMinHeight(50);
-		podBox.setMinWidth(50);
+
+		// Create a VBox to hold pod information labels
+		VBox podInfoBox = new VBox(5);
+		podInfoBox.setPadding(new Insets(5));
+
+		// Header label to identify pod
 		Label podNameLabel = new Label("Pod: " + pod.getName());
-		Label podStatusLabel = new Label("Status: " + pod.getStatus());
+		podNameLabel.setStyle(
+			"-fx-font-size: 16px;" +
+			"-fx-font-weight: bold;" +
+			"-fx-text-fill: black;"
+		);
 
+		// Additional pod information labels
+		Label namespaceLabel = new Label("Namespace: " + pod.getNamespace());
+		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
-		podBox.getChildren().addAll(podNameLabel, podStatusLabel);
-		
+		Label nodeNameLabel = new Label("Node Name: " + pod.getNodeName());
+		nodeNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label statusLabel = new Label("Status: " + pod.getStatus());
+		statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label ipLabel = new Label("IP: " + pod.getIp());
+		ipLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label cpuLabel = new Label("CPU: " + pod.getCpu());
+		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label memoryLabel = new Label("Memory: " + pod.getMemory());
+		memoryLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
+		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		// Add all labels to the info box
+		podInfoBox.getChildren().addAll(podNameLabel, namespaceLabel, nodeNameLabel,
+		                                  statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+
+		podBox.getChildren().add(podInfoBox);
+
 		return podBox;
 	}
 	// This method will create a HBox to visually represent a node
@@ -204,8 +240,12 @@ public class MainBorderPane extends BorderPane{
 			"-fx-border-radius: 10;" +
 			"-fx-background-radius: 10;"
 		);
-		nodeBox.setMinHeight(75);
-		nodeBox.setMinWidth(150);
+//		nodeBox.setMinHeight(175); // Increased to accommodate vertical info
+//		nodeBox.setPrefWidth(700); // Set preferred width to accommodate all content
+
+		// Create a VBox to hold node information labels
+		VBox nodeInfoBox = new VBox(5);
+		nodeInfoBox.setPadding(new Insets(5));
 
 		// Header label to identify node
 		Label nodeNameLabel = new Label("Node: " + node.getName());
@@ -215,8 +255,28 @@ public class MainBorderPane extends BorderPane{
 			"-fx-text-fill: white;"
 		);
 
-		nodeBox.getChildren().add(nodeNameLabel);
-		
+		// Additional node information labels
+		Label statusLabel = new Label("Status: " + node.getStatus());
+		statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+
+		Label architectureLabel = new Label("Architecture: " + node.getArchitecture());
+		architectureLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+
+		Label cpuLabel = new Label("CPU: " + node.getCpu());
+		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+
+		Label memoryLabel = new Label("Memory: " + node.getMemory());
+		memoryLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+
+		Label diskSpaceLabel = new Label("Disk Space: " + node.getDiskSpace());
+		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+
+		// Add all labels to the info box
+		nodeInfoBox.getChildren().addAll(nodeNameLabel, statusLabel, architectureLabel,
+		                                   cpuLabel, memoryLabel, diskSpaceLabel);
+
+		nodeBox.getChildren().add(nodeInfoBox);
+
 		for(Pod pod : node.getPods()) {
 			HBox podBox = createPodBox(pod);
 			nodeBox.getChildren().add(podBox);
@@ -237,8 +297,8 @@ public class MainBorderPane extends BorderPane{
 			"-fx-border-radius: 10;" +
 			"-fx-background-radius: 10;"
 		);
-		clusterBox.setMinHeight(150);
-		clusterBox.setMaxWidth(800);
+//		clusterBox.setMinHeight(150);
+//		clusterBox.setMaxWidth(800);
 
 		// Cluster header with name
 		Label clusterNameLabel = new Label("Cluster: " + cluster.getName());
