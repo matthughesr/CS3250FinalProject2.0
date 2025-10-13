@@ -151,11 +151,23 @@ public class DeploymentUpsert extends VBox {
             	
             	// Add pods to node
             	for(int i = 0; i < replicas; i++) {
-            		Pod pod = new Pod(image + "Pod", "newNamespace");
+            		Pod pod = new Pod(image + "Pod");
             		newNode.addPod(pod); 
             		Container container = new Container(image + "Container", image);
             		pod.addContainer(container);
             	}
+            }
+            else {
+            	for(int i = 0; i < replicas; i++) {
+            		List<Node> nodeList = cluster.getNodes();
+            		Node node = nodeList.get(0);
+            		Pod pod = new Pod(image + "Pod");
+            		
+            		node.addPod(pod);
+            		Container container = new Container(image + "Container", image);
+            		pod.addContainer(container);
+            	}
+            	
             }
             
             

@@ -100,4 +100,18 @@ public class Cluster {
         
         return sb.toString();
     }
+    
+    
+    
+    public Deployment getDeploymentByName(String name) {
+        for (Deployment d : deployments) {
+            if (d.getName().equals(name)) {
+                return d;
+            }
+        }
+        return null;
+    }
+    
+    
+    
 }

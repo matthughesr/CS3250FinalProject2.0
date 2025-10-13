@@ -5,7 +5,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application{
-	private static Cluster cluster;
+//	private static Cluster cluster;
+//	private static Cluster cluster2;
 	private static ClusterManager clusterManager;
 
 	public static void main(String[] args) {
@@ -13,11 +14,11 @@ public class Main extends Application{
 		clusterManager = new ClusterManager();
 
 		// Create cluster
-		cluster = new Cluster("Non-Prod-Cluster");
+		Cluster cluster = new Cluster("Non-Prod-Cluster");
 		clusterManager.addCluster(cluster);
 		
-		cluster = new Cluster("Prod-Cluster");
-		clusterManager.addCluster(cluster);
+		Cluster cluster2 = new Cluster("Prod-Cluster");
+		clusterManager.addCluster(cluster2);
 		
 		// Create nodes and add to cluster
 		Node node1 = new Node("MattsNode", "AMD");
@@ -30,25 +31,25 @@ public class Main extends Application{
 		node2.setMemory("4");
 		node2.setDiskSpace("50GB");
 		cluster.addNode(node1);
-		cluster.addNode(node2);
+		cluster2.addNode(node2);
 
 		// Create pods and add to nodes
 		
-		Pod nginxPod = new Pod("EnginxPod", "apps");
+		Pod nginxPod = new Pod("EnginxPod");
 		nginxPod.setCpu("50m");
 		nginxPod.setMemory("50Mi");
 		nginxPod.setDiskSpace("5GB");
 		nginxPod.addContainer(new Container("nginx", "nginx"));
 		node1.addPod(nginxPod);
 
-		Pod nginxPod2 = new Pod("EnginxPod2", "apps");
+		Pod nginxPod2 = new Pod("EnginxPod2");
 		nginxPod2.setCpu("50m");
 		nginxPod2.setMemory("50Mi");
 		nginxPod2.setDiskSpace("5GB");
 		nginxPod2.addContainer(new Container("nginx", "nginx"));
 		node2.addPod(nginxPod2);
 		
-		Pod nginxPod3 = new Pod("EnginxPod3", "apps");
+		Pod nginxPod3 = new Pod("EnginxPod3");
 		nginxPod3.setCpu("50m");
 		nginxPod3.setMemory("50Mi");
 		nginxPod3.setDiskSpace("5GB");
@@ -76,7 +77,7 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		MainBorderPane pane = new MainBorderPane(cluster, clusterManager); // Pass cluster and cluster manager to MainBorderPane
+		MainBorderPane pane = new MainBorderPane(clusterManager); // Pass cluster and cluster manager to MainBorderPane
 		Scene scene = new Scene(pane, 500, 500);
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true); // fill the screen so I don't have to do it myself

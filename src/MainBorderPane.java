@@ -22,11 +22,11 @@ import javafx.scene.layout.VBox;
 public class MainBorderPane extends BorderPane{
 	private VBox defaultCenter; // this is the "main" center pane content
 	private ScrollPane scrollPane; // ScrollPane wrapper for the center content
-	private Cluster cluster;
+//	private Cluster cluster;
 	private ClusterManager clusterManager;
 
-	public MainBorderPane(Cluster cluster, ClusterManager clusterManager) {
-		this.cluster = cluster;
+	public MainBorderPane(ClusterManager clusterManager) {
+//		this.cluster = cluster;
 		this.clusterManager = clusterManager;
 
 		/// ----------- TOP PANE ------------------------------------
@@ -134,8 +134,6 @@ public class MainBorderPane extends BorderPane{
 //		rightPane.setStyle("-fx-background-color: blue;");
 //		setRight(rightPane);
 		
-		
-
 
 	}
 	
@@ -174,6 +172,18 @@ public class MainBorderPane extends BorderPane{
 				// Create a visual box for each cluster
 				VBox clusterBox = createClusterBox(c);
 				defaultCenter.getChildren().add(clusterBox);
+				
+				// Loop through each node in the cluster and create a node box
+				for (Node node : c.getNodes()) {
+					HBox nodeBox = createNodeBox(node);
+					clusterBox.getChildren().add(nodeBox);
+					
+					// Loop through each pod in the node and create pod box
+					for(Pod pod : node.getPods()) {
+						HBox podBox = createPodBox(pod);
+						nodeBox.getChildren().add(podBox);
+					}
+				}
 			}
 		}
 	}
@@ -200,9 +210,11 @@ public class MainBorderPane extends BorderPane{
 			"-fx-text-fill: black;"
 		);
 
+		
 		// Additional pod information labels
-		Label namespaceLabel = new Label("Namespace: " + pod.getNamespace());
-		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+//		Deployment deployment = cluster.getDeploymentByName("");
+//		Label namespaceLabel = new Label("Namespace: " + deployment.getNamespace());
+//		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
 		Label nodeNameLabel = new Label("Node Name: " + pod.getNodeName());
 		nodeNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
@@ -223,13 +235,13 @@ public class MainBorderPane extends BorderPane{
 		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
 		// Add all labels to the info box
-		podInfoBox.getChildren().addAll(podNameLabel, namespaceLabel, nodeNameLabel,
-		                                  statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+		podInfoBox.getChildren().addAll(podNameLabel, nodeNameLabel, statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
 
 		podBox.getChildren().add(podInfoBox);
 
 		return podBox;
 	}
+	
 	// This method will create a HBox to visually represent a node
 	private HBox createNodeBox(Node node) {
 		HBox nodeBox = new HBox(10);
@@ -240,8 +252,6 @@ public class MainBorderPane extends BorderPane{
 			"-fx-border-radius: 10;" +
 			"-fx-background-radius: 10;"
 		);
-//		nodeBox.setMinHeight(175); // Increased to accommodate vertical info
-//		nodeBox.setPrefWidth(700); // Set preferred width to accommodate all content
 
 		// Create a VBox to hold node information labels
 		VBox nodeInfoBox = new VBox(5);
@@ -277,11 +287,6 @@ public class MainBorderPane extends BorderPane{
 
 		nodeBox.getChildren().add(nodeInfoBox);
 
-		for(Pod pod : node.getPods()) {
-			HBox podBox = createPodBox(pod);
-			nodeBox.getChildren().add(podBox);
-		}
-
 		return nodeBox;
 	}
 	
@@ -297,8 +302,6 @@ public class MainBorderPane extends BorderPane{
 			"-fx-border-radius: 10;" +
 			"-fx-background-radius: 10;"
 		);
-//		clusterBox.setMinHeight(150);
-//		clusterBox.setMaxWidth(800);
 
 		// Cluster header with name
 		Label clusterNameLabel = new Label("Cluster: " + cluster.getName());
@@ -321,12 +324,6 @@ public class MainBorderPane extends BorderPane{
 
 		// Add cluster header and info to the box
 		clusterBox.getChildren().addAll(clusterNameLabel, clusterInfoLabel);
-
-		// Loop through each node in the cluster and create a node box
-		for (Node node : cluster.getNodes()) {
-			HBox nodeBox = createNodeBox(node);
-			clusterBox.getChildren().add(nodeBox);
-		}
 
 		return clusterBox;
 	}

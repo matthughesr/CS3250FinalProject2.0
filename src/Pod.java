@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Pod {
     private String name;
-    private String namespace;
+//    private String namespace;
     private String nodeName;
     private String status;
     private String ip;
@@ -13,9 +13,9 @@ public class Pod {
     private List<Container> containers;
     
     // Constructor
-    public Pod(String name, String namespace) {
+    public Pod(String name) {
         this.name = name;
-        this.namespace = namespace;
+//        this.namespace = namespace;
         this.status = "Pending";
         this.containers = new ArrayList<>();
         this.cpu = "0";
@@ -27,8 +27,8 @@ public class Pod {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     
-    public String getNamespace() { return namespace; }
-    public void setNamespace(String namespace) { this.namespace = namespace; }
+//    public String getNamespace() { return namespace; }
+//    public void setNamespace(String namespace) { this.namespace = namespace; }
     
     public String getNodeName() { return nodeName; }
     public void setNodeName(String nodeName) { this.nodeName = nodeName; }
@@ -68,6 +68,6 @@ public class Pod {
     
     // Utility method
     public String toString() {
-        return "Pod{name='" + name + "', namespace='" + namespace + "', status='" + status + "', containers=" + containers.size() + "}";
+        return "Pod{name='" + name + "', status='" + status + "', containers=" + containers.size() + "}";
     }
 }

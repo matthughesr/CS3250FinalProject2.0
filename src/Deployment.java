@@ -12,6 +12,7 @@ public class Deployment {
     private String memory;
     private String diskSpace;
     private int replicas;
+    private String namespace;
     private List<Pod> managedPods;
     
     // Constructor
@@ -24,6 +25,7 @@ public class Deployment {
         this.cpu = "0";
         this.memory = "0";
         this.diskSpace = "0";
+        this.setNamespace("default");
         
     }
     
@@ -49,6 +51,14 @@ public class Deployment {
     public int getReplicas() { return replicas; }
     public void setReplicas(int replicas) { this.replicas = replicas; }
     
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
+    
     public List<Pod> getManagedPods() { return managedPods; }
     
     
@@ -69,8 +79,12 @@ public class Deployment {
         return managedPods.size();
     }
     
-    // Utility method
+    // Utility methods
     public String toString() {
         return "Deployment{name='" + name + "', status='" + status + "', replicas=" + replicas + ", managedPods=" + managedPods.size() + "}";
     }
+    
+
+
+
 }
