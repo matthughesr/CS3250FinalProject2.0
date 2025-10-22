@@ -1,0 +1,40 @@
+// This build.gradle file was created by claude code
+
+
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Kubernetes Java Client
+    implementation 'io.kubernetes:client-java:19.0.0'
+
+    // Logging (required by Kubernetes client)
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+}
+
+// Tell Gradle where your source files are
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+// JavaFX configuration
+javafx {
+    version = "17.0.2"
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+application {
+    mainClass = 'Main'
+}
+
+
