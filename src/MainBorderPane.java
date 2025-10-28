@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -175,7 +176,7 @@ public class MainBorderPane extends BorderPane{
 				
 				// Loop through each node in the cluster and create a node box
 				for (Node node : c.getNodes()) {
-					HBox nodeBox = createNodeBox(node);
+					FlowPane nodeBox = createNodeBox(node);
 					clusterBox.getChildren().add(nodeBox);
 					
 					// Loop through each pod in the node and create pod box
@@ -243,8 +244,11 @@ public class MainBorderPane extends BorderPane{
 	}
 	
 	// This method will create a HBox to visually represent a node
-	private HBox createNodeBox(Node node) {
-		HBox nodeBox = new HBox(10);
+	private FlowPane createNodeBox(Node node) {
+		FlowPane nodeBox = new FlowPane();
+		nodeBox.setVgap(8);
+		nodeBox.setHgap(4);
+		nodeBox.setPrefWrapLength(300); // preferred width = 300
 		nodeBox.setPadding(new Insets(10));
 		VBox.setMargin(nodeBox, new Insets(0, 0, 10, 0)); // Add bottom margin for spacing
 		nodeBox.setStyle(

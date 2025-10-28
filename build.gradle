@@ -1,4 +1,8 @@
+// AI citation
 // This build.gradle file was created by claude code
+// Date Oct 22
+// Prompt: "Create a gradle build file for my app to intergrate the kubernetes java client"
+// Integration: Help me with the heavy lift of setting up kubernetes java client API so I can focus on the java code
 
 
 plugins {
