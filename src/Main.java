@@ -62,36 +62,11 @@ public class Main extends Application{
 			clusterManager.addCluster(cluster);
 
 			System.out.println("=== Fetching Live Data from Kubernetes ===\n");
-
-			// Step 5: Fetch and populate nodes
-			System.out.println("Fetching nodes...");
-			V1NodeList nodeList = coreApi.listNode(null, null, null, null, null, null, null, null, null, null, null);
-
+			
+			// step 5: get nodes and add to cluster
 			// Map to store node objects for later pod assignment
 			Map<String, Node> nodeMap = new HashMap<>();
-
-			for (V1Node k8sNode : nodeList.getItems()) {
-				String nodeName = k8sNode.getMetadata().getName();
-				String architecture = k8sNode.getStatus().getNodeInfo().getArchitecture();
-
-				// Get node capacity
-				Map<String, Quantity> capacity = k8sNode.getStatus().getCapacity();
-				String cpu = capacity.get("cpu").toSuffixedString();
-				String memory = capacity.get("memory").toSuffixedString();
-				String storage = capacity.containsKey("ephemeral-storage") ?
-					capacity.get("ephemeral-storage").toSuffixedString() : "Unknown";
-
-				// Create node object
-				Node node = new Node(nodeName, architecture);
-				node.setCpu(cpu);
-				node.setMemory(memory);
-				node.setDiskSpace(storage);
-
-				cluster.addNode(node);
-				nodeMap.put(nodeName, node);
-
-				System.out.println("  - Node: " + nodeName + " (CPU: " + cpu + ", Memory: " + memory + ")");
-			}
+			getNodes(cluster, nodeMap);
 
 			// Step 6: Fetch and populate pods
 			System.out.println("\nFetching pods...");
@@ -192,6 +167,42 @@ public class Main extends Application{
 
 		// Launch JavaFX application
 		launch(args);
+	}
+	
+	
+	
+	
+	private static void getNodes(Cluster cluster, Map<String, Node> nodeMap) {
+
+		// Step 5: Fetch and populate nodes
+		System.out.println("Fetching nodes...");
+		V1NodeList nodeList = coreApi.listNode(null, null, null, null, null, null, null, null, null, null, null);
+
+
+
+		for (V1Node k8sNode : nodeList.getItems()) {
+			String nodeName = k8sNode.getMetadata().getName();
+			String architecture = k8sNode.getStatus().getNodeInfo().getArchitecture();
+
+			// Get node capacity
+			Map<String, Quantity> capacity = k8sNode.getStatus().getCapacity();
+			String cpu = capacity.get("cpu").toSuffixedString();
+			String memory = capacity.get("memory").toSuffixedString();
+			String storage = capacity.containsKey("ephemeral-storage") ?
+				capacity.get("ephemeral-storage").toSuffixedString() : "Unknown";
+
+			// Create node object
+			Node node = new Node(nodeName, architecture);
+			node.setCpu(cpu);
+			node.setMemory(memory);
+			node.setDiskSpace(storage);
+
+			cluster.addNode(node);
+			nodeMap.put(nodeName, node);
+
+			System.out.println("  - Node: " + nodeName + " (CPU: " + cpu + ", Memory: " + memory + ")");
+		}
+
 	}
 
 	/**
