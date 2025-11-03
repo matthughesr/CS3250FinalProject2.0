@@ -66,53 +66,12 @@ public class Main extends Application{
 			// step 5: get nodes and add to cluster
 			// Map to store node objects for later pod assignment
 			Map<String, Node> nodeMap = new HashMap<>();
-			getNodes(cluster, nodeMap);
+			getNodes(cluster, nodeMap, coreApi, appsApi);
 
-			// Step 6: Fetch and populate pods
-			System.out.println("\nFetching pods...");
-			V1PodList podList = coreApi.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
-
+			// step 6: get pods
 			// Map to store pods by name for later deployment assignment
 			Map<String, Pod> podMap = new HashMap<>();
-
-			for (V1Pod k8sPod : podList.getItems()) {
-				String podName = k8sPod.getMetadata().getName();
-				String namespace = k8sPod.getMetadata().getNamespace();
-				String nodeName = k8sPod.getSpec().getNodeName();
-
-				// Create pod object
-				Pod pod = new Pod(podName);
-
-				// Add containers to pod
-				for (V1Container container : k8sPod.getSpec().getContainers()) {
-					String containerName = container.getName();
-					String image = container.getImage();
-					pod.addContainer(new Container(containerName, image));
-				}
-
-				// Get resource requests if available
-				if (k8sPod.getSpec().getContainers().size() > 0) {
-					V1Container firstContainer = k8sPod.getSpec().getContainers().get(0);
-					if (firstContainer.getResources() != null && firstContainer.getResources().getRequests() != null) {
-						Map<String, Quantity> requests = firstContainer.getResources().getRequests();
-						if (requests.containsKey("cpu")) {
-							pod.setCpu(requests.get("cpu").toSuffixedString());
-						}
-						if (requests.containsKey("memory")) {
-							pod.setMemory(requests.get("memory").toSuffixedString());
-						}
-					}
-				}
-
-				// Add pod to appropriate node
-				if (nodeName != null && nodeMap.containsKey(nodeName)) {
-					nodeMap.get(nodeName).addPod(pod);
-				}
-
-				podMap.put(namespace + "/" + podName, pod);
-
-				System.out.println("  - Pod: " + podName + " (Namespace: " + namespace + ", Node: " + nodeName + ")");
-			}
+			getPods(podMap, nodeMap, coreApi, appsApi);
 
 			// Step 7: Fetch and populate deployments
 			System.out.println("\nFetching deployments...");
@@ -172,13 +131,11 @@ public class Main extends Application{
 	
 	
 	
-	private static void getNodes(Cluster cluster, Map<String, Node> nodeMap) {
+	private static void getNodes(Cluster cluster, Map<String, Node> nodeMap, CoreV1Api coreApi, AppsV1Api appsApi ) {
 
 		// Step 5: Fetch and populate nodes
 		System.out.println("Fetching nodes...");
 		V1NodeList nodeList = coreApi.listNode(null, null, null, null, null, null, null, null, null, null, null);
-
-
 
 		for (V1Node k8sNode : nodeList.getItems()) {
 			String nodeName = k8sNode.getMetadata().getName();
@@ -205,6 +162,55 @@ public class Main extends Application{
 
 	}
 
+	
+	private static void getPods(Map<String, Pod> podMap, Map<String, Node> nodeMap, CoreV1Api coreApi, AppsV1Api appsApi ) {
+		// Step 6: Fetch and populate pods
+		System.out.println("\nFetching pods...");
+		V1PodList podList = coreApi.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
+
+
+
+		for (V1Pod k8sPod : podList.getItems()) {
+			String podName = k8sPod.getMetadata().getName();
+			String namespace = k8sPod.getMetadata().getNamespace();
+			String nodeName = k8sPod.getSpec().getNodeName();
+
+			// Create pod object
+			Pod pod = new Pod(podName);
+
+			// Add containers to pod
+			for (V1Container container : k8sPod.getSpec().getContainers()) {
+				String containerName = container.getName();
+				String image = container.getImage();
+				pod.addContainer(new Container(containerName, image));
+			}
+
+			// Get resource requests if available
+			if (k8sPod.getSpec().getContainers().size() > 0) {
+				V1Container firstContainer = k8sPod.getSpec().getContainers().get(0);
+				if (firstContainer.getResources() != null && firstContainer.getResources().getRequests() != null) {
+					Map<String, Quantity> requests = firstContainer.getResources().getRequests();
+					if (requests.containsKey("cpu")) {
+						pod.setCpu(requests.get("cpu").toSuffixedString());
+					}
+					if (requests.containsKey("memory")) {
+						pod.setMemory(requests.get("memory").toSuffixedString());
+					}
+				}
+			}
+
+			// Add pod to appropriate node
+			if (nodeName != null && nodeMap.containsKey(nodeName)) {
+				nodeMap.get(nodeName).addPod(pod);
+			}
+
+			podMap.put(namespace + "/" + podName, pod);
+
+			System.out.println("  - Pod: " + podName + " (Namespace: " + namespace + ", Node: " + nodeName + ")");
+		}
+	}
+	
+	
 	/**
 	 * Locates the default kubeconfig file on the system.
 	 * 
