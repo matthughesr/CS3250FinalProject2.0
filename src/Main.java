@@ -74,36 +74,8 @@ public class Main extends Application{
 			getPods(podMap, nodeMap, coreApi, appsApi);
 
 			// Step 7: Fetch and populate deployments
-			System.out.println("\nFetching deployments...");
-			V1DeploymentList deploymentList = appsApi.listDeploymentForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
-
-			for (V1Deployment k8sDeployment : deploymentList.getItems()) {
-				String deploymentName = k8sDeployment.getMetadata().getName();
-				String namespace = k8sDeployment.getMetadata().getNamespace();
-				Integer replicas = k8sDeployment.getSpec().getReplicas();
-
-				// Get the container image from the pod template
-				String image = "unknown";
-				if (k8sDeployment.getSpec().getTemplate().getSpec().getContainers().size() > 0) {
-					image = k8sDeployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
-				}
-
-				// Create deployment object
-				Deployment deployment = new Deployment(deploymentName, image, replicas != null ? replicas : 0);
-
-				// Try to find and associate pods managed by this deployment
-				// Note: This is a simplified approach - in reality you'd match by labels
-				String deploymentPrefix = deploymentName + "-";
-				for (Map.Entry<String, Pod> entry : podMap.entrySet()) {
-					if (entry.getKey().startsWith(namespace + "/" + deploymentPrefix)) {
-						deployment.addManagedPod(entry.getValue());
-					}
-				}
-
-				cluster.addDeployment(deployment);
-
-				System.out.println("  - Deployment: " + deploymentName + " (Namespace: " + namespace + ", Replicas: " + replicas + ", Image: " + image + ")");
-			}
+			getDeployments(cluster, podMap);
+			
 
 			System.out.println("\n=== Live Data Loaded Successfully ===\n");
 
@@ -210,6 +182,42 @@ public class Main extends Application{
 		}
 	}
 	
+	
+	private static void getDeployments(Cluster cluster, Map<String, Pod> podMap ) {
+		
+		System.out.println("\nFetching deployments...");
+		V1DeploymentList deploymentList = appsApi.listDeploymentForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
+
+		for (V1Deployment k8sDeployment : deploymentList.getItems()) {
+			String deploymentName = k8sDeployment.getMetadata().getName();
+			String namespace = k8sDeployment.getMetadata().getNamespace();
+			Integer replicas = k8sDeployment.getSpec().getReplicas();
+
+			// Get the container image from the pod template
+			String image = "unknown";
+			if (k8sDeployment.getSpec().getTemplate().getSpec().getContainers().size() > 0) {
+				image = k8sDeployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
+			}
+
+			// Create deployment object
+			Deployment deployment = new Deployment(deploymentName, image, replicas != null ? replicas : 0);
+
+			// Try to find and associate pods managed by this deployment
+			// Note: This is a simplified approach - in reality you'd match by labels
+			String deploymentPrefix = deploymentName + "-";
+			for (Map.Entry<String, Pod> entry : podMap.entrySet()) {
+				if (entry.getKey().startsWith(namespace + "/" + deploymentPrefix)) {
+					deployment.addManagedPod(entry.getValue());
+				}
+			}
+		}
+
+		cluster.addDeployment(deployment);
+
+		System.out.println("  - Deployment: " + deploymentName + " (Namespace: " + namespace + ", Replicas: " + replicas + ", Image: " + image + ")");
+	
+
+	}
 	
 	/**
 	 * Locates the default kubeconfig file on the system.
