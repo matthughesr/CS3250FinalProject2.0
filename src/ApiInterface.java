@@ -1,13 +1,33 @@
+// Kubernetes Java Client API imports
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.apis.AppsV1Api;
+import io.kubernetes.client.openapi.models.*;
+import io.kubernetes.client.custom.Quantity;
+
+// Regular imports
 import java.util.Map;
-// This class acts like a wrapper for the kubernetes java client library
-// It will create easy access to the kubernetes API
+import java.util.HashMap;
+
+/**
+ * This class acts as a wrapper for the Kubernetes Java Client library.
+ * It provides easy access to the Kubernetes API and methods to fetch cluster data.
+ */
 public class ApiInterface {
-	
-	
 
-	private static void getNodes(Cluster cluster, Map<String, Node> nodeMap, CoreV1Api coreApi, AppsV1Api appsApi ) {
+	private final CoreV1Api coreApi;
+	private final AppsV1Api appsApi;
 
-		// Step 5: Fetch and populate nodes
+	
+	// Construtor
+	public ApiInterface(CoreV1Api coreApi, AppsV1Api appsApi) {
+		this.coreApi = coreApi;
+		this.appsApi = appsApi;
+	}
+
+// Wrapper methods
+	// This method will get the info about nodes on the actual cluster and create objects for them
+	public void fetchNodes(Cluster cluster) throws ApiException {
 		System.out.println("Fetching nodes...");
 		V1NodeList nodeList = coreApi.listNode(null, null, null, null, null, null, null, null, null, null, null);
 
@@ -29,20 +49,22 @@ public class ApiInterface {
 			node.setDiskSpace(storage);
 
 			cluster.addNode(node);
-			nodeMap.put(nodeName, node);
 
 			System.out.println("  - Node: " + nodeName + " (CPU: " + cpu + ", Memory: " + memory + ")");
 		}
-
 	}
 
-	
-	private static void getPods(Map<String, Pod> podMap, Map<String, Node> nodeMap, CoreV1Api coreApi, AppsV1Api appsApi ) {
-		// Step 6: Fetch and populate pods
+
+	// This will fetch the pods from each node and create objects for them and add it to the node
+	public void fetchPods(Cluster cluster) throws ApiException {
 		System.out.println("\nFetching pods...");
 		V1PodList podList = coreApi.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
 
-
+		// Build a map of node names to Node objects for quick lookup
+		Map<String, Node> nodeMap = new HashMap<>();
+		for (Node node : cluster.getNodes()) {
+			nodeMap.put(node.getName(), node);
+		}
 
 		for (V1Pod k8sPod : podList.getItems()) {
 			String podName = k8sPod.getMetadata().getName();
@@ -78,17 +100,24 @@ public class ApiInterface {
 				nodeMap.get(nodeName).addPod(pod);
 			}
 
-			podMap.put(namespace + "/" + podName, pod);
-
 			System.out.println("  - Pod: " + podName + " (Namespace: " + namespace + ", Node: " + nodeName + ")");
 		}
 	}
-	
-	
-	private static void getDeployments(Cluster cluster, Map<String, Pod> podMap ) {
-		
+
+	// This will fetch all Deployments from the actual cluster
+	public void fetchDeployments(Cluster cluster) throws ApiException {
 		System.out.println("\nFetching deployments...");
 		V1DeploymentList deploymentList = appsApi.listDeploymentForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
+
+		// Build a map of pods by namespace/name for quick lookup
+		Map<String, Pod> podMap = new HashMap<>();
+		for (Node node : cluster.getNodes()) {
+			for (Pod pod : node.getPods()) {
+				// We need to reconstruct the namespace/name key
+				// This is a simplified approach - in reality we'd need to track namespace in Pod
+				podMap.put(pod.getName(), pod);
+			}
+		}
 
 		for (V1Deployment k8sDeployment : deploymentList.getItems()) {
 			String deploymentName = k8sDeployment.getMetadata().getName();
@@ -105,20 +134,17 @@ public class ApiInterface {
 			Deployment deployment = new Deployment(deploymentName, image, replicas != null ? replicas : 0);
 
 			// Try to find and associate pods managed by this deployment
-			// Note: This is a simplified approach - in reality you'd match by labels
+			// Note: This is a simplified approach - in reality we should prob match by labels
 			String deploymentPrefix = deploymentName + "-";
 			for (Map.Entry<String, Pod> entry : podMap.entrySet()) {
-				if (entry.getKey().startsWith(namespace + "/" + deploymentPrefix)) {
+				if (entry.getKey().startsWith(deploymentPrefix)) {
 					deployment.addManagedPod(entry.getValue());
 				}
 			}
+
+			cluster.addDeployment(deployment);
+
+			System.out.println("  - Deployment: " + deploymentName + " (Namespace: " + namespace + ", Replicas: " + replicas + ", Image: " + image + ")");
 		}
-
-		cluster.addDeployment(deployment);
-
-		System.out.println("  - Deployment: " + deploymentName + " (Namespace: " + namespace + ", Replicas: " + replicas + ", Image: " + image + ")");
-	
-
 	}
-
 }

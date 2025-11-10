@@ -4,21 +4,14 @@ import io.kubernetes.client.openapi.ApiException;     // Exception type for K8s 
 import io.kubernetes.client.openapi.Configuration;    // Global client configuration
 import io.kubernetes.client.openapi.apis.CoreV1Api;   // Core Kubernetes API (pods, namespaces, etc.)
 import io.kubernetes.client.openapi.apis.AppsV1Api;   // Apps API for deployments, replicasets, etc.
-import io.kubernetes.client.openapi.models.*;         // All Kubernetes object models
-import io.kubernetes.client.custom.Quantity;          // For resource quantities (CPU, memory)
 import io.kubernetes.client.util.ClientBuilder;       // Helper to build API clients
 import io.kubernetes.client.util.KubeConfig;          // Kubeconfig file parser
-
-
 
 // Regular imports
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -31,14 +24,12 @@ public class Main extends Application{
 	public static void main(String[] args) {
 		// Initialize cluster manager (business logic layer)
 		clusterManager = new ClusterManager();
-		
-		
-		
+
 		// AI citation: The following code was created with the help of Claude code. I will likely be changing this code later so it is just proof of concept right now
 		// Date: Oct 28
 		// Prompt:  Right now this application display to the user basic information about a kubernetes cluster. I am just using test data right
 		//now. My goal is to display actual live data from this minikube cluster usig the kubernetes java client.  How can I use the kubernetes java client to do this?
-		/// Integration: Used as a starting point to interact with a live kubernetes cluster. I leaned on AI here so I can learn how to use this API since documation is not well written and avaliable 
+		/// Integration: Used as a starting point to interact with a live kubernetes cluster. I leaned on AI here so I can learn how to use this API since documation is not well written and avaliable
 
 		try {
 			// Step 1: Locate and load the kubeconfig file
@@ -56,26 +47,20 @@ public class Main extends Application{
 			CoreV1Api coreApi = new CoreV1Api();
 			AppsV1Api appsApi = new AppsV1Api();
 
-			// Step 4: Create cluster from real Kubernetes cluster
+			// Step 4: Create ApiInterface to interact with Kubernetes
+			ApiInterface apiInterface = new ApiInterface(coreApi, appsApi);
+
+			// Step 5: Create cluster from real Kubernetes cluster
 			String clusterName = "minikube"; // You can get this from kubeconfig context
 			Cluster cluster = new Cluster(clusterName);
 			clusterManager.addCluster(cluster);
 
 			System.out.println("=== Fetching Live Data from Kubernetes ===\n");
-			
-			// step 5: get nodes and add to cluster
-			// Map to store node objects for later pod assignment
-			Map<String, Node> nodeMap = new HashMap<>();
-			getNodes(cluster, nodeMap, coreApi, appsApi);
 
-			// step 6: get pods
-			// Map to store pods by name for later deployment assignment
-			Map<String, Pod> podMap = new HashMap<>();
-			getPods(podMap, nodeMap, coreApi, appsApi);
-
-			// Step 7: Fetch and populate deployments
-			getDeployments(cluster, podMap);
-			
+			// Step 6: Fetch cluster data using ApiInterface
+			apiInterface.fetchNodes(cluster);
+			apiInterface.fetchPods(cluster);
+			apiInterface.fetchDeployments(cluster);
 
 			System.out.println("\n=== Live Data Loaded Successfully ===\n");
 
@@ -99,126 +84,8 @@ public class Main extends Application{
 		// Launch JavaFX application
 		launch(args);
 	}
-	
-	
-	
-	
-	private static void getNodes(Cluster cluster, Map<String, Node> nodeMap, CoreV1Api coreApi, AppsV1Api appsApi ) {
-
-		// Step 5: Fetch and populate nodes
-		System.out.println("Fetching nodes...");
-		V1NodeList nodeList = coreApi.listNode(null, null, null, null, null, null, null, null, null, null, null);
-
-		for (V1Node k8sNode : nodeList.getItems()) {
-			String nodeName = k8sNode.getMetadata().getName();
-			String architecture = k8sNode.getStatus().getNodeInfo().getArchitecture();
-
-			// Get node capacity
-			Map<String, Quantity> capacity = k8sNode.getStatus().getCapacity();
-			String cpu = capacity.get("cpu").toSuffixedString();
-			String memory = capacity.get("memory").toSuffixedString();
-			String storage = capacity.containsKey("ephemeral-storage") ?
-				capacity.get("ephemeral-storage").toSuffixedString() : "Unknown";
-
-			// Create node object
-			Node node = new Node(nodeName, architecture);
-			node.setCpu(cpu);
-			node.setMemory(memory);
-			node.setDiskSpace(storage);
-
-			cluster.addNode(node);
-			nodeMap.put(nodeName, node);
-
-			System.out.println("  - Node: " + nodeName + " (CPU: " + cpu + ", Memory: " + memory + ")");
-		}
-
-	}
-
-	
-	private static void getPods(Map<String, Pod> podMap, Map<String, Node> nodeMap, CoreV1Api coreApi, AppsV1Api appsApi ) {
-		// Step 6: Fetch and populate pods
-		System.out.println("\nFetching pods...");
-		V1PodList podList = coreApi.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
 
 
-
-		for (V1Pod k8sPod : podList.getItems()) {
-			String podName = k8sPod.getMetadata().getName();
-			String namespace = k8sPod.getMetadata().getNamespace();
-			String nodeName = k8sPod.getSpec().getNodeName();
-
-			// Create pod object
-			Pod pod = new Pod(podName);
-
-			// Add containers to pod
-			for (V1Container container : k8sPod.getSpec().getContainers()) {
-				String containerName = container.getName();
-				String image = container.getImage();
-				pod.addContainer(new Container(containerName, image));
-			}
-
-			// Get resource requests if available
-			if (k8sPod.getSpec().getContainers().size() > 0) {
-				V1Container firstContainer = k8sPod.getSpec().getContainers().get(0);
-				if (firstContainer.getResources() != null && firstContainer.getResources().getRequests() != null) {
-					Map<String, Quantity> requests = firstContainer.getResources().getRequests();
-					if (requests.containsKey("cpu")) {
-						pod.setCpu(requests.get("cpu").toSuffixedString());
-					}
-					if (requests.containsKey("memory")) {
-						pod.setMemory(requests.get("memory").toSuffixedString());
-					}
-				}
-			}
-
-			// Add pod to appropriate node
-			if (nodeName != null && nodeMap.containsKey(nodeName)) {
-				nodeMap.get(nodeName).addPod(pod);
-			}
-
-			podMap.put(namespace + "/" + podName, pod);
-
-			System.out.println("  - Pod: " + podName + " (Namespace: " + namespace + ", Node: " + nodeName + ")");
-		}
-	}
-	
-	
-	private static void getDeployments(Cluster cluster, Map<String, Pod> podMap ) {
-		
-		System.out.println("\nFetching deployments...");
-		V1DeploymentList deploymentList = appsApi.listDeploymentForAllNamespaces(null, null, null, null, null, null, null, null, null, null, null);
-
-		for (V1Deployment k8sDeployment : deploymentList.getItems()) {
-			String deploymentName = k8sDeployment.getMetadata().getName();
-			String namespace = k8sDeployment.getMetadata().getNamespace();
-			Integer replicas = k8sDeployment.getSpec().getReplicas();
-
-			// Get the container image from the pod template
-			String image = "unknown";
-			if (k8sDeployment.getSpec().getTemplate().getSpec().getContainers().size() > 0) {
-				image = k8sDeployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
-			}
-
-			// Create deployment object
-			Deployment deployment = new Deployment(deploymentName, image, replicas != null ? replicas : 0);
-
-			// Try to find and associate pods managed by this deployment
-			// Note: This is a simplified approach - in reality you'd match by labels
-			String deploymentPrefix = deploymentName + "-";
-			for (Map.Entry<String, Pod> entry : podMap.entrySet()) {
-				if (entry.getKey().startsWith(namespace + "/" + deploymentPrefix)) {
-					deployment.addManagedPod(entry.getValue());
-				}
-			}
-		}
-
-		cluster.addDeployment(deployment);
-
-		System.out.println("  - Deployment: " + deploymentName + " (Namespace: " + namespace + ", Replicas: " + replicas + ", Image: " + image + ")");
-	
-
-	}
-	
 	/**
 	 * Locates the default kubeconfig file on the system.
 	 * 
