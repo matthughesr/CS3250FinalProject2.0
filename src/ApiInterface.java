@@ -26,6 +26,12 @@ public class ApiInterface {
 	}
 
 // Wrapper methods
+	
+	public void fetchCluster(Cluster cluster) {
+		
+	}
+	
+	
 	// This method will get the info about nodes on the actual cluster and create objects for them
 	public void fetchNodes(Cluster cluster) throws ApiException {
 		System.out.println("Fetching nodes...");
@@ -70,9 +76,18 @@ public class ApiInterface {
 			String podName = k8sPod.getMetadata().getName();
 			String namespace = k8sPod.getMetadata().getNamespace();
 			String nodeName = k8sPod.getSpec().getNodeName();
+			String podIP = k8sPod.getStatus().getPodIP(); 
+			String status = k8sPod.getStatus().getPhase();
+		    
+//			System.out.println("PODS IP ADDRESS: " + podIP);
+		    
 
 			// Create pod object
 			Pod pod = new Pod(podName);
+			
+			pod.setIp(podIP);
+			pod.setStatus(status);
+			
 
 			// Add containers to pod
 			for (V1Container container : k8sPod.getSpec().getContainers()) {

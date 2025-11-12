@@ -275,6 +275,9 @@ public class MainBorderPane extends BorderPane{
 
 		Label architectureLabel = new Label("Architecture: " + node.getArchitecture());
 		architectureLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
+		
+		Label podNumLabel = new Label("Pods: " + node.getPodCount());
+		podNumLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
 
 		Label cpuLabel = new Label("CPU: " + node.getCpu());
 		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
@@ -286,7 +289,7 @@ public class MainBorderPane extends BorderPane{
 		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
 
 		// Add all labels to the info box
-		nodeInfoBox.getChildren().addAll(nodeNameLabel, statusLabel, architectureLabel,
+		nodeInfoBox.getChildren().addAll(nodeNameLabel, podNumLabel,statusLabel, architectureLabel,
 		                                   cpuLabel, memoryLabel, diskSpaceLabel);
 
 		nodeBox.getChildren().add(nodeInfoBox);
@@ -317,8 +320,7 @@ public class MainBorderPane extends BorderPane{
 
 		// Cluster info
 		Label clusterInfoLabel = new Label(
-			"Status: " + cluster.getStatus() +
-			" | Nodes: " + cluster.getNodeCount() +
+			"Nodes: " + cluster.getNodeCount() +
 			" | Deployments: " + cluster.getDeploymentCount()
 		);
 		clusterInfoLabel.setStyle(
