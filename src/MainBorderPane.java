@@ -234,9 +234,12 @@ public class MainBorderPane extends BorderPane{
 
 		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
 		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+		
+		Label namespaceLabel = new Label("Namespace: " + pod.getNamespace());
+		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
 		// Add all labels to the info box
-		podInfoBox.getChildren().addAll(podNameLabel, nodeNameLabel, statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+		podInfoBox.getChildren().addAll(podNameLabel, namespaceLabel,nodeNameLabel, statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
 
 		podBox.getChildren().add(podInfoBox);
 

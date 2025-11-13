@@ -78,8 +78,10 @@ public class ApiInterface {
 			String nodeName = k8sPod.getSpec().getNodeName();
 			String podIP = k8sPod.getStatus().getPodIP(); 
 			String status = k8sPod.getStatus().getPhase();
+
 		    
-//			System.out.println("PODS IP ADDRESS: " + podIP);
+		    
+
 		    
 
 			// Create pod object
@@ -87,6 +89,7 @@ public class ApiInterface {
 			
 			pod.setIp(podIP);
 			pod.setStatus(status);
+			pod.setNamespace(namespace);
 			
 
 			// Add containers to pod

@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Pod {
     private String name;
-//    private String namespace;
+    private String namespace;
     private String nodeName;
     private String status;
     private String ip;
@@ -70,4 +70,12 @@ public class Pod {
     public String toString() {
         return "Pod{name='" + name + "', status='" + status + "', containers=" + containers.size() + "}";
     }
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
 }
