@@ -247,6 +247,9 @@ public class MainBorderPane extends BorderPane{
 			PodDetailsPane podPane = new PodDetailsPane(() -> setCenter(scrollPane), pod, this );
 			setCenter(podPane);
 		});
+		detailsButton.setStyle( "-fx-background-color: #111827; -fx-text-fill: white; -fx-padding: 6 12; -fx-background-radius: 6;-fx-font-size: 14px;");
+
+
 		
 		podInfoBox.getChildren().addAll(podNameLabel, statusLabel, namespaceLabel, detailsButton);
 

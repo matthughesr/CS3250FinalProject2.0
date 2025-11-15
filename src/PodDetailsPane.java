@@ -23,22 +23,40 @@ public class PodDetailsPane extends VBox{
 	public PodDetailsPane(Runnable goBack,Pod pod, MainBorderPane mainBorderPane) {
 		this.mainBorderPane = mainBorderPane;
 		
-		// Title label: has pods name
+		// Title label with bold styling
 		Label labelPart = new Label("Pod Name: ");
 		labelPart.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-
+		// title label part 2: name of pod
 		Label namePart = new Label(pod.getName());
 		namePart.setStyle("-fx-font-size: 18px; -fx-text-fill: #3366ff;");
 
-
-		
 		// HBox to center things
 		HBox titleBox = new HBox(5, labelPart, namePart); // Add labels to HBox pane
 		titleBox.setAlignment(Pos.CENTER); // Center the title horizontally
 		getChildren().addAll(titleBox);
 		
+		// Labels for pod specific details
+		Label ipLabel = new Label("IP: " + pod.getIp());
+		ipLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label cpuLabel = new Label("CPU: " + pod.getCpu());
+		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label memoryLabel = new Label("Memory: " + pod.getMemory());
+		memoryLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+
+		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
+		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+		
+		
+		// Add all labels to the info box
+		getChildren().addAll(ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+
+		
+		
 		
 		// Line chart to show CPU data
+		// Line chart docs "https://docs.oracle.com/javafx/2/charts/line-chart.htm"
 		final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Seconds");
@@ -50,6 +68,28 @@ public class PodDetailsPane extends VBox{
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("CPU Usage");
         lineChart.getData().add(series);
+        
+        
+        // Inline css styles for line chart
+        // Removes dot from data point and changes color
+        String inlineCss = """
+        	    .chart-line-symbol {
+        	        -fx-background-color: transparent;
+        	        -fx-background-radius: 0;
+        	        -fx-padding: 0;
+        	        -fx-scale-x: 0;
+        	        -fx-scale-y: 0;
+        	    }
+
+        	    .chart-series-line {
+        	        -fx-stroke: #C04000 !important;
+        	        -fx-stroke-width: 2px;
+        	    }
+        	    """;
+
+        	lineChart.getStylesheets().add(
+        	    "data:text/css," + inlineCss.replace("\n", "%0A")
+        	);
 
         // Timeline for updating CPU every second
         Timeline timeline = new Timeline(
@@ -87,12 +127,21 @@ public class PodDetailsPane extends VBox{
             })
         );
         
+
         // Run CPU timeline forever
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
         getChildren().add(lineChart);
 
+        
+        
+        
+        
+        
+        
+        
+        
         // ========== MEMORY CHART ==========
         final NumberAxis x2Axis = new NumberAxis();
         final NumberAxis y2Axis = new NumberAxis();
@@ -106,6 +155,31 @@ public class PodDetailsPane extends VBox{
         XYChart.Series<Number, Number> series2 = new XYChart.Series<>();
         series2.setName("Memory Usage");
         lineChart2.getData().add(series2);
+        
+        
+        // Inline css styles for line chart
+        // Removes dot from data point and changes color
+        String inlineCss2 = """
+        	    .chart-line-symbol {
+        	        -fx-background-color: transparent;
+        	        -fx-background-radius: 0;
+        	        -fx-padding: 0;
+        	        -fx-scale-x: 0;
+        	        -fx-scale-y: 0;
+        	    }
+
+        	    .chart-series-line {
+        	        -fx-stroke: #56903A !important;
+        	        -fx-stroke-width: 2px;
+        	    }
+        	    """;
+
+        	lineChart2.getStylesheets().add(
+        	    "data:text/css," + inlineCss2.replace("\n", "%0A")
+        	);
+        
+        
+        
 
         // Timeline for updating memory every second
         Timeline timeline2 = new Timeline(

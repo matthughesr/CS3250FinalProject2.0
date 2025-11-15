@@ -173,6 +173,11 @@ public class ApiInterface {
 		}
 	}
 
+	
+	// AI Citation. This method was created with the help of claude code. Nov 14, 2025
+	// Prompt: How do I fetch live metrics from the kubernetes API for a javafx line chart
+	// Implementation: Used feedback from AI to use differnent method for fetching metrics used in line chart
+	
 	/**
 	 * Fetches real-time metrics (CPU and memory usage) for a specific pod.
 	 * Returns a Map with "cpu" and "memory" keys containing the current usage values.
