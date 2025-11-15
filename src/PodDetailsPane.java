@@ -1,0 +1,169 @@
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
+import javafx.util.Duration;
+import java.util.Map;
+
+
+public class PodDetailsPane extends VBox{
+	private MainBorderPane mainBorderPane;
+	
+	public PodDetailsPane(Runnable goBack,Pod pod, MainBorderPane mainBorderPane) {
+		this.mainBorderPane = mainBorderPane;
+		
+		// Title label: has pods name
+		Label labelPart = new Label("Pod Name: ");
+		labelPart.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+		Label namePart = new Label(pod.getName());
+		namePart.setStyle("-fx-font-size: 18px; -fx-text-fill: #3366ff;");
+
+
+		
+		// HBox to center things
+		HBox titleBox = new HBox(5, labelPart, namePart); // Add labels to HBox pane
+		titleBox.setAlignment(Pos.CENTER); // Center the title horizontally
+		getChildren().addAll(titleBox);
+		
+		
+		// Line chart to show CPU data
+		final NumberAxis xAxis = new NumberAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Seconds");
+        yAxis.setLabel("CPU (millicores)");
+        //creating the chart
+        final LineChart<Number,Number> lineChart = new LineChart<Number,Number>(xAxis,yAxis);
+        lineChart.setTitle("CPU Usage");
+
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series.setName("CPU Usage");
+        lineChart.getData().add(series);
+
+        // Timeline for updating CPU every second
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.seconds(1), event -> {
+                // Fetch live metrics from Kubernetes API
+                ApiInterface apiInterface = mainBorderPane.getClusterManager().getApiInterface();
+
+                if (apiInterface != null) {
+                    Map<String, String> metrics = apiInterface.fetchPodMetrics(pod.getName(), pod.getNamespace());
+
+                    if (metrics != null && metrics.containsKey("cpu")) {
+                        try {
+                            double cpuValue = Double.parseDouble(metrics.get("cpu"));
+
+                            // x = time in seconds
+                            int x = series.getData().size();
+
+                            series.getData().add(new XYChart.Data<>(x, cpuValue));
+
+                            // Limit number of points displayed and re-index
+                            if (series.getData().size() > 100) {
+                                series.getData().remove(0);
+                                // Re-index remaining points to prevent gaps
+                                for (int i = 0; i < series.getData().size(); i++) {
+                                    series.getData().get(i).setXValue(i);
+                                }
+                            }
+                        } catch (NumberFormatException e) {
+                            System.err.println("Error parsing CPU value: " + e.getMessage());
+                        }
+                    } else {
+                        System.err.println("No metrics available for pod " + pod.getName());
+                    }
+                }
+            })
+        );
+        
+        // Run CPU timeline forever
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+
+        getChildren().add(lineChart);
+
+        // ========== MEMORY CHART ==========
+        final NumberAxis x2Axis = new NumberAxis();
+        final NumberAxis y2Axis = new NumberAxis();
+        x2Axis.setLabel("Seconds");
+        y2Axis.setLabel("Memory (MiB)");
+
+        // Creating the memory chart
+        final LineChart<Number,Number> lineChart2 = new LineChart<Number,Number>(x2Axis, y2Axis);
+        lineChart2.setTitle("Memory Usage");
+
+        XYChart.Series<Number, Number> series2 = new XYChart.Series<>();
+        series2.setName("Memory Usage");
+        lineChart2.getData().add(series2);
+
+        // Timeline for updating memory every second
+        Timeline timeline2 = new Timeline(
+            new KeyFrame(Duration.seconds(1), event -> {
+                // Fetch live metrics from Kubernetes API
+                ApiInterface apiInterface = mainBorderPane.getClusterManager().getApiInterface();
+
+                if (apiInterface != null) {
+                    Map<String, String> metrics = apiInterface.fetchPodMetrics(pod.getName(), pod.getNamespace());
+
+                    if (metrics != null && metrics.containsKey("memory")) {
+                        try {
+                            // Memory is in bytes, convert to MiB (Mebibytes)
+                            double memoryBytes = Double.parseDouble(metrics.get("memory"));
+                            double memoryMiB = memoryBytes / (1024.0 * 1024.0);
+
+                            // x = time in seconds
+                            int x = series2.getData().size();
+
+                            series2.getData().add(new XYChart.Data<>(x, memoryMiB));
+
+                            // Limit number of points displayed and re-index
+                            if (series2.getData().size() > 100) {
+                                series2.getData().remove(0);
+                                // Re-index remaining points to prevent gaps
+                                for (int i = 0; i < series2.getData().size(); i++) {
+                                    series2.getData().get(i).setXValue(i);
+                                }
+                            }
+                        } catch (NumberFormatException e) {
+                            System.err.println("Error parsing memory value: " + e.getMessage());
+                        }
+                    } else {
+                        System.err.println("No memory metrics available for pod " + pod.getName());
+                    }
+                }
+            })
+        );
+
+        // Run memory timeline forever
+        timeline2.setCycleCount(Animation.INDEFINITE);
+        timeline2.play();
+
+        getChildren().add(lineChart2);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+		
+		
+	}
+
+}

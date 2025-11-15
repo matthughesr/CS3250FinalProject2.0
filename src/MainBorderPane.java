@@ -217,29 +217,38 @@ public class MainBorderPane extends BorderPane{
 //		Label namespaceLabel = new Label("Namespace: " + deployment.getNamespace());
 //		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
-		Label nodeNameLabel = new Label("Node Name: " + pod.getNodeName());
-		nodeNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+//		Label nodeNameLabel = new Label("Node Name: " + pod.getNodeName());
+//		nodeNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
 		Label statusLabel = new Label("Status: " + pod.getStatus());
 		statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
-		Label ipLabel = new Label("IP: " + pod.getIp());
-		ipLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+//		Label ipLabel = new Label("IP: " + pod.getIp());
+//		ipLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
-		Label cpuLabel = new Label("CPU: " + pod.getCpu());
-		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+//		Label cpuLabel = new Label("CPU: " + pod.getCpu());
+//		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
-		Label memoryLabel = new Label("Memory: " + pod.getMemory());
-		memoryLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+//		Label memoryLabel = new Label("Memory: " + pod.getMemory());
+//		memoryLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
-		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
-		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+//		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
+//		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 		
 		Label namespaceLabel = new Label("Namespace: " + pod.getNamespace());
 		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
 		// Add all labels to the info box
-		podInfoBox.getChildren().addAll(podNameLabel, namespaceLabel,nodeNameLabel, statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+//		podInfoBox.getChildren().addAll(podNameLabel, namespaceLabel,nodeNameLabel, statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+		
+		Button detailsButton = new Button("Details");
+		detailsButton.setOnAction(event -> {
+			// Create new pane to replace current center one
+			PodDetailsPane podPane = new PodDetailsPane(() -> setCenter(scrollPane), pod, this );
+			setCenter(podPane);
+		});
+		
+		podInfoBox.getChildren().addAll(podNameLabel, statusLabel, namespaceLabel, detailsButton);
 
 		podBox.getChildren().add(podInfoBox);
 
@@ -335,6 +344,11 @@ public class MainBorderPane extends BorderPane{
 		clusterBox.getChildren().addAll(clusterNameLabel, clusterInfoLabel);
 
 		return clusterBox;
+	}
+
+	// Getter for ClusterManager
+	public ClusterManager getClusterManager() {
+		return clusterManager;
 	}
 
 }

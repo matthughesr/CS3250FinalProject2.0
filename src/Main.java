@@ -6,6 +6,7 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;   // Core Kubernetes API (po
 import io.kubernetes.client.openapi.apis.AppsV1Api;   // Apps API for deployments, replicasets, etc.
 import io.kubernetes.client.util.ClientBuilder;       // Helper to build API clients
 import io.kubernetes.client.util.KubeConfig;          // Kubeconfig file parser
+import io.kubernetes.client.Metrics;                  // Metrics API for real-time CPU/memory data
 
 // Regular imports
 import java.io.FileReader;
@@ -37,18 +38,21 @@ public class Main extends Application{
 			System.out.println("Using kubeconfig: " + kubeConfigPath);
 
 			// Step 2: Parse kubeconfig and create authenticated API client
+			ApiClient client;
 			try (FileReader fileReader = new FileReader(kubeConfigPath.toFile())) {
 				KubeConfig kubeConfig = KubeConfig.loadKubeConfig(fileReader);
-				ApiClient client = ClientBuilder.kubeconfig(kubeConfig).build();
+				client = ClientBuilder.kubeconfig(kubeConfig).build();
 				Configuration.setDefaultApiClient(client);
 			}
 
 			// Step 3: Create API instances
 			CoreV1Api coreApi = new CoreV1Api();
 			AppsV1Api appsApi = new AppsV1Api();
+			Metrics metricsApi = new Metrics(client);
 
 			// Step 4: Create ApiInterface to interact with Kubernetes
-			ApiInterface apiInterface = new ApiInterface(coreApi, appsApi);
+			ApiInterface apiInterface = new ApiInterface(coreApi, appsApi, metricsApi);
+			clusterManager.setApiInterface(apiInterface);
 
 			// Step 5: Create cluster from real Kubernetes cluster
 			String clusterName = "minikube"; // You can get this from kubeconfig context

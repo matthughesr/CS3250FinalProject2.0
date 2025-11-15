@@ -4,10 +4,15 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.custom.Quantity;
+import io.kubernetes.client.Metrics;
+import io.kubernetes.client.custom.PodMetrics;
+import io.kubernetes.client.custom.PodMetricsList;
+import io.kubernetes.client.custom.ContainerMetrics;
 
 // Regular imports
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * This class acts as a wrapper for the Kubernetes Java Client library.
@@ -17,12 +22,14 @@ public class ApiInterface {
 
 	private final CoreV1Api coreApi;
 	private final AppsV1Api appsApi;
+	private final Metrics metricsApi;
 
-	
+
 	// Construtor
-	public ApiInterface(CoreV1Api coreApi, AppsV1Api appsApi) {
+	public ApiInterface(CoreV1Api coreApi, AppsV1Api appsApi, Metrics metricsApi) {
 		this.coreApi = coreApi;
 		this.appsApi = appsApi;
+		this.metricsApi = metricsApi;
 	}
 
 // Wrapper methods
@@ -163,6 +170,67 @@ public class ApiInterface {
 			cluster.addDeployment(deployment);
 
 			System.out.println("  - Deployment: " + deploymentName + " (Namespace: " + namespace + ", Replicas: " + replicas + ", Image: " + image + ")");
+		}
+	}
+
+	/**
+	 * Fetches real-time metrics (CPU and memory usage) for a specific pod.
+	 * Returns a Map with "cpu" and "memory" keys containing the current usage values.
+	 *
+	 * @param podName the name of the pod
+	 * @param namespace the namespace of the pod
+	 * @return Map containing "cpu" (in millicores) and "memory" (in bytes) as strings, or null if metrics unavailable
+	 */
+	public Map<String, String> fetchPodMetrics(String podName, String namespace) {
+		try {
+			// getPodMetrics returns a PodMetricsList for all pods in a namespace
+			PodMetricsList podMetricsList = metricsApi.getPodMetrics(namespace);
+
+			if (podMetricsList == null || podMetricsList.getItems() == null) {
+				return null;
+			}
+
+			// Find the specific pod we're looking for
+			PodMetrics podMetrics = null;
+			for (PodMetrics pm : podMetricsList.getItems()) {
+				if (pm.getMetadata() != null && podName.equals(pm.getMetadata().getName())) {
+					podMetrics = pm;
+					break;
+				}
+			}
+
+			if (podMetrics == null || podMetrics.getContainers() == null || podMetrics.getContainers().isEmpty()) {
+				return null;
+			}
+
+			// Aggregate metrics across all containers in the pod
+			long totalCpuNano = 0;
+			long totalMemoryBytes = 0;
+
+			for (ContainerMetrics container : podMetrics.getContainers()) {
+				Map<String, Quantity> usage = container.getUsage();
+
+				if (usage.containsKey("cpu")) {
+					// CPU is in nanoseconds, convert to millicores (1 millicore = 1,000,000 nanoseconds)
+					totalCpuNano += usage.get("cpu").getNumber().longValue();
+				}
+
+				if (usage.containsKey("memory")) {
+					// Memory is in bytes
+					totalMemoryBytes += usage.get("memory").getNumber().longValue();
+				}
+			}
+
+			Map<String, String> metrics = new HashMap<>();
+			// Convert nanoseconds to millicores
+			metrics.put("cpu", String.valueOf(totalCpuNano / 1_000_000));
+			metrics.put("memory", String.valueOf(totalMemoryBytes));
+
+			return metrics;
+
+		} catch (ApiException e) {
+			System.err.println("Error fetching metrics for pod " + podName + ": " + e.getMessage());
+			return null;
 		}
 	}
 }

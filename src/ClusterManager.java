@@ -9,9 +9,20 @@ import java.util.List;
 public class ClusterManager {
 	// List for clusters
     private List<Cluster> clusters;
+    private ApiInterface apiInterface;
 
     public ClusterManager() {
         this.clusters = new ArrayList<>();
+    }
+
+    // Set the API interface for interacting with Kubernetes
+    public void setApiInterface(ApiInterface apiInterface) {
+        this.apiInterface = apiInterface;
+    }
+
+    // Get the API interface
+    public ApiInterface getApiInterface() {
+        return apiInterface;
     }
 
     // Cluster management methods
