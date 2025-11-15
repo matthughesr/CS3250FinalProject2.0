@@ -222,24 +222,9 @@ public class MainBorderPane extends BorderPane{
 
 		Label statusLabel = new Label("Status: " + pod.getStatus());
 		statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-
-//		Label ipLabel = new Label("IP: " + pod.getIp());
-//		ipLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-
-//		Label cpuLabel = new Label("CPU: " + pod.getCpu());
-//		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-
-//		Label memoryLabel = new Label("Memory: " + pod.getMemory());
-//		memoryLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-
-//		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
-//		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 		
 		Label namespaceLabel = new Label("Namespace: " + pod.getNamespace());
 		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-
-		// Add all labels to the info box
-//		podInfoBox.getChildren().addAll(podNameLabel, namespaceLabel,nodeNameLabel, statusLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
 		
 		Button detailsButton = new Button("Details");
 		detailsButton.setOnAction(event -> {

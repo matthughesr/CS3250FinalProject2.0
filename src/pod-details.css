@@ -1,0 +1,22 @@
+/* PodDetailsPane CSS Styles */
+
+/* Remove dots from line chart data points */
+.chart-line-symbol {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+    -fx-scale-x: 0;
+    -fx-scale-y: 0;
+}
+
+/* CPU Chart Line Styling */
+#cpu-chart .chart-series-line {
+    -fx-stroke: #C04000;
+    -fx-stroke-width: 2px;
+}
+
+/* Memory Chart Line Styling */
+#memory-chart .chart-series-line {
+    -fx-stroke: #56903A;
+    -fx-stroke-width: 2px;
+}

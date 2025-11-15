@@ -68,28 +68,17 @@ public class PodDetailsPane extends VBox{
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("CPU Usage");
         lineChart.getData().add(series);
-        
-        
-        // Inline css styles for line chart
-        // Removes dot from data point and changes color
-        String inlineCss = """
-        	    .chart-line-symbol {
-        	        -fx-background-color: transparent;
-        	        -fx-background-radius: 0;
-        	        -fx-padding: 0;
-        	        -fx-scale-x: 0;
-        	        -fx-scale-y: 0;
-        	    }
 
-        	    .chart-series-line {
-        	        -fx-stroke: #C04000 !important;
-        	        -fx-stroke-width: 2px;
-        	    }
-        	    """;
+        // Set ID for CSS targeting
+        lineChart.setId("cpu-chart");
 
-        	lineChart.getStylesheets().add(
-        	    "data:text/css," + inlineCss.replace("\n", "%0A")
-        	);
+        // Load external CSS file
+        try {
+            String cssPath = new java.io.File("src/pod-details.css").toURI().toString();
+            lineChart.getStylesheets().add(cssPath);
+        } catch (Exception e) {
+            System.err.println("Could not load CSS file: " + e.getMessage());
+        }
 
         // Timeline for updating CPU every second
         Timeline timeline = new Timeline(
@@ -155,28 +144,17 @@ public class PodDetailsPane extends VBox{
         XYChart.Series<Number, Number> series2 = new XYChart.Series<>();
         series2.setName("Memory Usage");
         lineChart2.getData().add(series2);
-        
-        
-        // Inline css styles for line chart
-        // Removes dot from data point and changes color
-        String inlineCss2 = """
-        	    .chart-line-symbol {
-        	        -fx-background-color: transparent;
-        	        -fx-background-radius: 0;
-        	        -fx-padding: 0;
-        	        -fx-scale-x: 0;
-        	        -fx-scale-y: 0;
-        	    }
 
-        	    .chart-series-line {
-        	        -fx-stroke: #56903A !important;
-        	        -fx-stroke-width: 2px;
-        	    }
-        	    """;
+        // Set ID for CSS targeting
+        lineChart2.setId("memory-chart");
 
-        	lineChart2.getStylesheets().add(
-        	    "data:text/css," + inlineCss2.replace("\n", "%0A")
-        	);
+        // Load external CSS file
+        try {
+            String cssPath = new java.io.File("src/pod-details.css").toURI().toString();
+            lineChart2.getStylesheets().add(cssPath);
+        } catch (Exception e) {
+            System.err.println("Could not load CSS file: " + e.getMessage());
+        }
         
         
         
