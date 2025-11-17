@@ -29,6 +29,7 @@ public class MainBorderPane extends BorderPane{
 	public MainBorderPane(ClusterManager clusterManager) {
 //		this.cluster = cluster;
 		this.clusterManager = clusterManager;
+		
 
 		/// ----------- TOP PANE ------------------------------------
 		// THis pane will be used for the header. It won't change much
@@ -60,6 +61,13 @@ public class MainBorderPane extends BorderPane{
         scrollPane = new ScrollPane(defaultCenter);
         scrollPane.setFitToWidth(true); // Makes content use full width
         scrollPane.setStyle("-fx-background-color: #e5e7eb;"); // Match background color
+
+        // Scroll faster
+        scrollPane.addEventFilter(javafx.scene.input.ScrollEvent.SCROLL, event -> {
+            double delta = event.getDeltaY() * 6; // Increase multiplier for faster scrolling
+            scrollPane.setVvalue(scrollPane.getVvalue() - delta / scrollPane.getContent().getBoundsInLocal().getHeight());
+            event.consume();
+        });
 
         // Display all clusters
         updateClusterDisplay();
@@ -123,7 +131,8 @@ public class MainBorderPane extends BorderPane{
 		optionsLabel.setStyle("-fx-text-fill: #f4f4f5; -fx-font-size: 18px;");
 		
 		
-		leftPane.getChildren().addAll(createClusterButton, createButton, optionsLabel, podsCheck, deploymentCheck, containerCheck, statsCheck); 
+//		leftPane.getChildren().addAll(createClusterButton, createButton, optionsLabel, podsCheck, deploymentCheck, containerCheck, statsCheck); 
+		leftPane.getChildren().addAll(createClusterButton, createButton); 
 		
 		
 		

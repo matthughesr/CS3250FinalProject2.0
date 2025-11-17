@@ -8,6 +8,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -15,14 +16,27 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import java.util.Map;
+import javafx.scene.input.ScrollEvent;
 
 
-public class PodDetailsPane extends VBox{
+public class PodDetailsPane extends ScrollPane{
 	private MainBorderPane mainBorderPane;
-	
+
 	public PodDetailsPane(Runnable goBack,Pod pod, MainBorderPane mainBorderPane) {
 		this.mainBorderPane = mainBorderPane;
+
+		// Scroll faster
+		addEventFilter(ScrollEvent.SCROLL, event -> {
+		    double delta = event.getDeltaY() * 6; // Increase multiplier for faster scrolling
+		    setVvalue(getVvalue() - delta / getContent().getBoundsInLocal().getHeight());
+		    event.consume();
+		});
 		
+		
+		// Create a VBox to hold all the content
+		VBox contentBox = new VBox(10);
+		// contentBox.setAlignment(Pos.TOP_CENTER);
+
 		// Title label with bold styling
 		Label labelPart = new Label("Pod Name: ");
 		labelPart.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
@@ -33,7 +47,7 @@ public class PodDetailsPane extends VBox{
 		// HBox to center things
 		HBox titleBox = new HBox(5, labelPart, namePart); // Add labels to HBox pane
 		titleBox.setAlignment(Pos.CENTER); // Center the title horizontally
-		getChildren().addAll(titleBox);
+		contentBox.getChildren().addAll(titleBox);
 		
 		// Labels for pod specific details
 		Label ipLabel = new Label("IP: " + pod.getIp());
@@ -48,9 +62,9 @@ public class PodDetailsPane extends VBox{
 		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
 		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 		
-		
+
 		// Add all labels to the info box
-		getChildren().addAll(ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+		contentBox.getChildren().addAll(ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
 
 		
 		
@@ -121,7 +135,7 @@ public class PodDetailsPane extends VBox{
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
-        getChildren().add(lineChart);
+        contentBox.getChildren().add(lineChart);
 
         
         
@@ -201,7 +215,14 @@ public class PodDetailsPane extends VBox{
         timeline2.setCycleCount(Animation.INDEFINITE);
         timeline2.play();
 
-        getChildren().add(lineChart2);
+        contentBox.getChildren().add(lineChart2);
+
+		// Set the content of the ScrollPane
+		setContent(contentBox);
+
+		// Configure ScrollPane properties
+		setFitToWidth(true);
+		setPannable(true);
 		
 		
 		
