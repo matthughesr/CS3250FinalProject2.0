@@ -50,6 +50,10 @@ public class PodDetailsPane extends ScrollPane{
 		contentBox.getChildren().addAll(titleBox);
 		
 		// Labels for pod specific details
+		Label namespaceLabel = new Label("Namespace: " + pod.getNamespace());
+		
+		Label nodeLabel = new Label("Node: " + pod.getNodeName());
+		
 		Label ipLabel = new Label("IP: " + pod.getIp());
 		ipLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 
@@ -64,7 +68,7 @@ public class PodDetailsPane extends ScrollPane{
 		
 
 		// Add all labels to the info box
-		contentBox.getChildren().addAll(ipLabel, cpuLabel, memoryLabel, diskSpaceLabel);
+		contentBox.getChildren().addAll(namespaceLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel, nodeLabel);
 
 		
 		
@@ -106,6 +110,7 @@ public class PodDetailsPane extends ScrollPane{
                     if (metrics != null && metrics.containsKey("cpu")) {
                         try {
                             double cpuValue = Double.parseDouble(metrics.get("cpu"));
+                            cpuLabel.setText("CPU: " + cpuValue);
 
                             // x = time in seconds
                             int x = series.getData().size();
@@ -169,9 +174,6 @@ public class PodDetailsPane extends ScrollPane{
         } catch (Exception e) {
             System.err.println("Could not load CSS file: " + e.getMessage());
         }
-        
-        
-        
 
         // Timeline for updating memory every second
         Timeline timeline2 = new Timeline(
@@ -187,6 +189,7 @@ public class PodDetailsPane extends ScrollPane{
                             // Memory is in bytes, convert to MiB (Mebibytes)
                             double memoryBytes = Double.parseDouble(metrics.get("memory"));
                             double memoryMiB = memoryBytes / (1024.0 * 1024.0);
+                            memoryLabel.setText("Memory: " + memoryMiB + "MiB" );
 
                             // x = time in seconds
                             int x = series2.getData().size();

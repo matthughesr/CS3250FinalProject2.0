@@ -35,7 +35,8 @@ public class ApiInterface {
 // Wrapper methods
 	
 	public void fetchCluster(Cluster cluster) {
-		
+		// Since right now I only have the ability to run 1 cluster 
+		// 			this will remain empty
 	}
 	
 	
@@ -86,17 +87,12 @@ public class ApiInterface {
 			String podIP = k8sPod.getStatus().getPodIP(); 
 			String status = k8sPod.getStatus().getPhase();
 
-		    
-		    
-
-		    
-
 			// Create pod object
 			Pod pod = new Pod(podName);
-			
+			pod.setNamespace(namespace);
+			pod.setNodeName(nodeName);
 			pod.setIp(podIP);
 			pod.setStatus(status);
-			pod.setNamespace(namespace);
 			
 
 			// Add containers to pod
@@ -113,9 +109,17 @@ public class ApiInterface {
 					Map<String, Quantity> requests = firstContainer.getResources().getRequests();
 					if (requests.containsKey("cpu")) {
 						pod.setCpu(requests.get("cpu").toSuffixedString());
+						System.out.println("Current cpu for pod " + podName + " is " + pod.getCpu());
+					}
+					else {
+						System.out.println("No cpu data found for pod: " + podName);
 					}
 					if (requests.containsKey("memory")) {
 						pod.setMemory(requests.get("memory").toSuffixedString());
+						System.out.println("Current memory for pod " + podName + " is" + pod.getMemory());
+					}
+					else {
+						System.out.println("No memory data found for pod: " + podName);
 					}
 				}
 			}

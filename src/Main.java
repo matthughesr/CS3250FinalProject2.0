@@ -55,7 +55,7 @@ public class Main extends Application{
 			clusterManager.setApiInterface(apiInterface);
 
 			// Step 5: Create cluster from real Kubernetes cluster
-			String clusterName = "minikube"; // You can get this from kubeconfig context
+			String clusterName = "Minikube"; // You can get this from kubeconfig context
 			Cluster cluster = new Cluster(clusterName);
 			clusterManager.addCluster(cluster);
 
