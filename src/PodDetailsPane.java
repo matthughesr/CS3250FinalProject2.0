@@ -110,7 +110,7 @@ public class PodDetailsPane extends ScrollPane{
                     if (metrics != null && metrics.containsKey("cpu")) {
                         try {
                             double cpuValue = Double.parseDouble(metrics.get("cpu"));
-                            cpuLabel.setText("CPU: " + cpuValue);
+                            cpuLabel.setText(String.format("CPU: %.2f millicores", cpuValue));
 
                             // x = time in seconds
                             int x = series.getData().size();
@@ -189,7 +189,7 @@ public class PodDetailsPane extends ScrollPane{
                             // Memory is in bytes, convert to MiB (Mebibytes)
                             double memoryBytes = Double.parseDouble(metrics.get("memory"));
                             double memoryMiB = memoryBytes / (1024.0 * 1024.0);
-                            memoryLabel.setText("Memory: " + memoryMiB + "MiB" );
+                            memoryLabel.setText(String.format("Memory: %.2f MiB", memoryMiB));
 
                             // x = time in seconds
                             int x = series2.getData().size();

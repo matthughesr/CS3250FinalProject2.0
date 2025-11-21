@@ -4,24 +4,21 @@ metadata:
   name: random-cpu
 spec:
   containers:
-  - name: random-cpu
+  - name: cpu-burner
     image: busybox
     command:
       - sh
       - -c
       - |
+        echo "Burning CPU..."
         while true; do
-          # Generate a random CPU load between 0 and 100% of 1 core
-          RAND=$(( RANDOM % 100 ))
-          echo "CPU load: $RAND"
-          # Busy loop for a short random time to simulate usage
-          END=$(( SECONDS + RAND % 3 ))
-          while [ $SECONDS -lt $END ]; do :; done
-          # Sleep briefly between bursts
-          sleep 0.5
+          sha256sum /dev/zero > /dev/null 2>&1 &
+          sha256sum /dev/zero > /dev/null 2>&1 &
+          sha256sum /dev/zero > /dev/null 2>&1 &
+          sha256sum /dev/zero > /dev/null 2>&1
         done
     resources:
       requests:
-        cpu: "100m"
+        cpu: "0.5"
       limits:
-        cpu: "1000m"
+        cpu: "1"

@@ -213,15 +213,20 @@ public class ApiInterface {
 			}
 
 			// Aggregate metrics across all containers in the pod
-			long totalCpuNano = 0;
+			double totalCpuMillicores = 0;
 			long totalMemoryBytes = 0;
 
 			for (ContainerMetrics container : podMetrics.getContainers()) {
 				Map<String, Quantity> usage = container.getUsage();
 
 				if (usage.containsKey("cpu")) {
-					// CPU is in nanoseconds, convert to millicores (1 millicore = 1,000,000 nanoseconds)
-					totalCpuNano += usage.get("cpu").getNumber().longValue();
+					// Quantity.getNumber() returns the value in cores (e.g., 0.917 cores)
+					// We need to convert from cores to millicores by multiplying by 1000
+					Quantity cpuQuantity = usage.get("cpu");
+					double cpuCores = cpuQuantity.getNumber().doubleValue();
+					double cpuMillicores = cpuCores * 1000.0;
+
+					totalCpuMillicores += cpuMillicores;
 				}
 
 				if (usage.containsKey("memory")) {
@@ -231,8 +236,8 @@ public class ApiInterface {
 			}
 
 			Map<String, String> metrics = new HashMap<>();
-			// Convert nanoseconds to millicores
-			metrics.put("cpu", String.valueOf(totalCpuNano / 1_000_000));
+			// Store CPU as millicores (with decimal precision)
+			metrics.put("cpu", String.format("%.2f", totalCpuMillicores));
 			metrics.put("memory", String.valueOf(totalMemoryBytes));
 
 			return metrics;
