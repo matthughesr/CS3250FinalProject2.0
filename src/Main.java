@@ -121,6 +121,12 @@ public class Main extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		MainBorderPane pane = new MainBorderPane(clusterManager); // Pass cluster and cluster manager to MainBorderPane
 		Scene scene = new Scene(pane, 500, 500);
+		
+		// Add style sheet for global styles
+		// reference for css. https://docs.oracle.com/javafx/2/css_tutorial/jfxpub-css_tutorial.htm
+		String cssPath = new java.io.File("src/style.css").toURI().toString();
+		scene.getStylesheets().add(cssPath);
+		
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true); // fill the screen so I don't have to do it myself
 		primaryStage.show();

@@ -100,6 +100,7 @@ public class MainBorderPane extends BorderPane{
 		
 		//Button to create new Cluster
 		Button createClusterButton = new Button("Create Cluster");
+		createClusterButton.getStyleClass().add("white-button");
 		createClusterButton.setOnAction(event -> {
 			// Create new pane to replace current center one
 			ClusterUpsert clusterPage = new ClusterUpsert(() -> setCenter(scrollPane), clusterManager, this);
@@ -108,6 +109,7 @@ public class MainBorderPane extends BorderPane{
 
 		//Button to create new deployment
 		Button createButton = new Button("Create Deployment");
+		createButton.getStyleClass().add("white-button");
 		createButton.setOnAction(event -> {
 			// Create new pane to replace current center one
 			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(scrollPane), clusterManager, this);
@@ -222,13 +224,6 @@ public class MainBorderPane extends BorderPane{
 
 		
 		// Additional pod information labels
-//		Deployment deployment = cluster.getDeploymentByName("");
-//		Label namespaceLabel = new Label("Namespace: " + deployment.getNamespace());
-//		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-
-//		Label nodeNameLabel = new Label("Node Name: " + pod.getNodeName());
-//		nodeNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-
 		Label statusLabel = new Label("Status: " + pod.getStatus());
 		statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 		
@@ -236,14 +231,12 @@ public class MainBorderPane extends BorderPane{
 		namespaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
 		
 		Button detailsButton = new Button("Details");
+		detailsButton.getStyleClass().add("button");
 		detailsButton.setOnAction(event -> {
 			// Create new pane to replace current center one
 			PodDetailsPane podPane = new PodDetailsPane(() -> setCenter(scrollPane), pod, this );
 			setCenter(podPane);
 		});
-		detailsButton.setStyle( "-fx-background-color: #111827; -fx-text-fill: white; -fx-padding: 6 12; -fx-background-radius: 6;-fx-font-size: 14px;");
-
-
 		
 		podInfoBox.getChildren().addAll(podNameLabel, statusLabel, namespaceLabel, detailsButton);
 

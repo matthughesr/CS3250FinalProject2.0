@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
@@ -15,6 +16,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+
+import java.util.List;
 import java.util.Map;
 import javafx.scene.input.ScrollEvent;
 
@@ -31,11 +34,22 @@ public class PodDetailsPane extends ScrollPane{
 		    setVvalue(getVvalue() - delta / getContent().getBoundsInLocal().getHeight());
 		    event.consume();
 		});
-		
-		
+
+
 		// Create a VBox to hold all the content
 		VBox contentBox = new VBox(10);
 		// contentBox.setAlignment(Pos.TOP_CENTER);
+
+
+		// Back button
+		Button backButton = new Button("Back");
+		backButton.getStyleClass().add("button");
+		backButton.setOnAction(e -> goBack.run());
+
+		// HBox for back button 
+		HBox backButtonBox = new HBox(backButton);
+		backButtonBox.setAlignment(Pos.TOP_RIGHT);
+		contentBox.getChildren().add(backButtonBox);
 
 		// Title label with bold styling
 		Label labelPart = new Label("Pod Name: ");
@@ -50,25 +64,48 @@ public class PodDetailsPane extends ScrollPane{
 		contentBox.getChildren().addAll(titleBox);
 		
 		// Labels for pod specific details
+		Label podSectionLabel = new Label("Pod Details");
+		podSectionLabel.getStyleClass().add("section-header");
+		
 		Label namespaceLabel = new Label("Namespace: " + pod.getNamespace());
-		
+		namespaceLabel.getStyleClass().add("info-label");
+
 		Label nodeLabel = new Label("Node: " + pod.getNodeName());
-		
+		nodeLabel.getStyleClass().add("info-label");
+
 		Label ipLabel = new Label("IP: " + pod.getIp());
-		ipLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+		ipLabel.getStyleClass().add("info-label");
 
 		Label cpuLabel = new Label("CPU: " + pod.getCpu());
-		cpuLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+		cpuLabel.getStyleClass().add("metric-label");
 
 		Label memoryLabel = new Label("Memory: " + pod.getMemory());
-		memoryLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+		memoryLabel.getStyleClass().add("metric-label");
 
 		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
-		diskSpaceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
-		
+		diskSpaceLabel.getStyleClass().add("info-label");
 
 		// Add all labels to the info box
-		contentBox.getChildren().addAll(namespaceLabel, ipLabel, cpuLabel, memoryLabel, diskSpaceLabel, nodeLabel);
+		contentBox.getChildren().addAll(podSectionLabel, namespaceLabel, ipLabel, diskSpaceLabel, nodeLabel, cpuLabel, memoryLabel);
+		
+		Label containerDetailsLabel = new Label("Container Details");
+		containerDetailsLabel.getStyleClass().add("section-header");
+		contentBox.getChildren().add(containerDetailsLabel);
+
+		// Get Containers
+		List<Container> podContainers =pod.getContainers();
+
+		// Create labels for container info
+		for(Container container : podContainers) {
+			Label containerName = new Label("Name: " + container.getName());
+			containerName.getStyleClass().add("container-label");
+			Label containerImage = new Label("Image: " + container.getImage());
+			containerImage.getStyleClass().add("container-label");
+			Label containerStatus = new Label("Status: " + container.getStatus());
+			containerStatus.getStyleClass().add("container-label");
+			contentBox.getChildren().addAll(containerName, containerImage, containerStatus);
+		}
+
 
 		
 		
@@ -90,13 +127,6 @@ public class PodDetailsPane extends ScrollPane{
         // Set ID for CSS targeting
         lineChart.setId("cpu-chart");
 
-        // Load external CSS file
-        try {
-            String cssPath = new java.io.File("src/pod-details.css").toURI().toString();
-            lineChart.getStylesheets().add(cssPath);
-        } catch (Exception e) {
-            System.err.println("Could not load CSS file: " + e.getMessage());
-        }
 
         // Timeline for updating CPU every second
         Timeline timeline = new Timeline(
@@ -146,10 +176,6 @@ public class PodDetailsPane extends ScrollPane{
         
         
         
-        
-        
-        
-        
         // ========== MEMORY CHART ==========
         final NumberAxis x2Axis = new NumberAxis();
         final NumberAxis y2Axis = new NumberAxis();
@@ -167,13 +193,6 @@ public class PodDetailsPane extends ScrollPane{
         // Set ID for CSS targeting
         lineChart2.setId("memory-chart");
 
-        // Load external CSS file
-        try {
-            String cssPath = new java.io.File("src/pod-details.css").toURI().toString();
-            lineChart2.getStylesheets().add(cssPath);
-        } catch (Exception e) {
-            System.err.println("Could not load CSS file: " + e.getMessage());
-        }
 
         // Timeline for updating memory every second
         Timeline timeline2 = new Timeline(
@@ -226,20 +245,7 @@ public class PodDetailsPane extends ScrollPane{
 		// Configure ScrollPane properties
 		setFitToWidth(true);
 		setPannable(true);
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-
-		
-		
+	
 	}
 
 }

@@ -1,0 +1,88 @@
+/* PodDetailsPane CSS Styles */
+
+/* Remove dots from line chart data points */
+.chart-line-symbol {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+    -fx-scale-x: 0;
+    -fx-scale-y: 0;
+}
+
+/* CPU Chart Line Styling */
+#cpu-chart .chart-series-line {
+    -fx-stroke: #C04000;
+    -fx-stroke-width: 2px;
+}
+
+/* Memory Chart Line Styling */
+#memory-chart .chart-series-line {
+    -fx-stroke: #56903A;
+    -fx-stroke-width: 2px;
+}
+
+/* Label Styling */
+.info-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+    -fx-padding: 8px 12px;
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 5px;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+.section-header {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 10px 0px 5px 0px;
+}
+
+.container-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #555555;
+    -fx-padding: 5px 10px;
+    -fx-background-color: #e8f4f8;
+    -fx-background-radius: 4px;
+    -fx-border-color: #b8dae8;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+.metric-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 6px 10px;
+    -fx-background-color: #fff3cd;
+    -fx-background-radius: 4px;
+    -fx-border-color: #ffc107;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+.button {
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-background-color: #111827;
+    -fx-background-radius: 6px;
+    -fx-padding: 10px 20px;
+}
+
+.white-button{
+	-fx-font-size: 14px;
+	-fx-text-fill: black;
+	-fx-background-color: #e5e7eb;
+	-fx-background-radius: 6px;
+	-fx-padding: 10px 20px;
+}
+
+.back-button:hover {
+    -fx-background-color: #2952cc;
+}
+
+.back-button:pressed {
+    -fx-background-color: #1e3d99;
+}

@@ -25,7 +25,7 @@ public class ApiInterface {
 	private final Metrics metricsApi;
 
 
-	// Construtor
+	// Constructor. 
 	public ApiInterface(CoreV1Api coreApi, AppsV1Api appsApi, Metrics metricsApi) {
 		this.coreApi = coreApi;
 		this.appsApi = appsApi;
@@ -43,13 +43,17 @@ public class ApiInterface {
 	// This method will get the info about nodes on the actual cluster and create objects for them
 	public void fetchNodes(Cluster cluster) throws ApiException {
 		System.out.println("Fetching nodes...");
+		
+		// Get list of all nodes in cluster
+		// V1NodeList stores a list of V1Nodes, apiversion, kind, and metadata.
 		V1NodeList nodeList = coreApi.listNode(null, null, null, null, null, null, null, null, null, null, null);
 
+		// Get info for each node. 
 		for (V1Node k8sNode : nodeList.getItems()) {
 			String nodeName = k8sNode.getMetadata().getName();
 			String architecture = k8sNode.getStatus().getNodeInfo().getArchitecture();
 
-			// Get node capacity
+			// Get node cpu, memory, and storage
 			Map<String, Quantity> capacity = k8sNode.getStatus().getCapacity();
 			String cpu = capacity.get("cpu").toSuffixedString();
 			String memory = capacity.get("memory").toSuffixedString();
@@ -58,10 +62,13 @@ public class ApiInterface {
 
 			// Create node object
 			Node node = new Node(nodeName, architecture);
+			
+			// Assign values
 			node.setCpu(cpu);
 			node.setMemory(memory);
 			node.setDiskSpace(storage);
 
+			// Add node to cluster
 			cluster.addNode(node);
 
 			System.out.println("  - Node: " + nodeName + " (CPU: " + cpu + ", Memory: " + memory + ")");
