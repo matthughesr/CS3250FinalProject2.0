@@ -10,7 +10,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -35,21 +38,17 @@ public class PodDetailsPane extends ScrollPane{
 		    event.consume();
 		});
 
-
-		// Create a VBox to hold all the content
-		VBox contentBox = new VBox(10);
-		// contentBox.setAlignment(Pos.TOP_CENTER);
-
+		// Create main container for everything
+		VBox mainContainer = new VBox(10);
 
 		// Back button
 		Button backButton = new Button("Back");
 		backButton.getStyleClass().add("button");
 		backButton.setOnAction(e -> goBack.run());
 
-		// HBox for back button 
+		// HBox for back button
 		HBox backButtonBox = new HBox(backButton);
 		backButtonBox.setAlignment(Pos.TOP_RIGHT);
-		contentBox.getChildren().add(backButtonBox);
 
 		// Title label with bold styling
 		Label labelPart = new Label("Pod Name: ");
@@ -61,8 +60,13 @@ public class PodDetailsPane extends ScrollPane{
 		// HBox to center things
 		HBox titleBox = new HBox(5, labelPart, namePart); // Add labels to HBox pane
 		titleBox.setAlignment(Pos.CENTER); // Center the title horizontally
-		contentBox.getChildren().addAll(titleBox);
-		
+
+		// Add back button and title to main container
+		mainContainer.getChildren().addAll(backButtonBox, titleBox);
+
+		// Create VBox for labels column
+		VBox labelsBox = new VBox(10);
+
 		// Labels for pod specific details
 		Label podSectionLabel = new Label("Pod Details");
 		podSectionLabel.getStyleClass().add("section-header");
@@ -85,12 +89,12 @@ public class PodDetailsPane extends ScrollPane{
 		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
 		diskSpaceLabel.getStyleClass().add("info-label");
 
-		// Add all labels to the info box
-		contentBox.getChildren().addAll(podSectionLabel, namespaceLabel, ipLabel, diskSpaceLabel, nodeLabel, cpuLabel, memoryLabel);
-		
+		// Add all labels to the labels box
+		labelsBox.getChildren().addAll(podSectionLabel, namespaceLabel, ipLabel, diskSpaceLabel, nodeLabel, cpuLabel, memoryLabel);
+
 		Label containerDetailsLabel = new Label("Container Details");
 		containerDetailsLabel.getStyleClass().add("section-header");
-		contentBox.getChildren().add(containerDetailsLabel);
+		labelsBox.getChildren().add(containerDetailsLabel);
 
 		// Get Containers
 		List<Container> podContainers =pod.getContainers();
@@ -103,13 +107,13 @@ public class PodDetailsPane extends ScrollPane{
 			containerImage.getStyleClass().add("container-label");
 			Label containerStatus = new Label("Status: " + container.getStatus());
 			containerStatus.getStyleClass().add("container-label");
-			contentBox.getChildren().addAll(containerName, containerImage, containerStatus);
+			labelsBox.getChildren().addAll(containerName, containerImage, containerStatus);
 		}
 
 
 		
 		
-		
+
 		// Line chart to show CPU data
 		// Line chart docs "https://docs.oracle.com/javafx/2/charts/line-chart.htm"
 		final NumberAxis xAxis = new NumberAxis();
@@ -170,7 +174,7 @@ public class PodDetailsPane extends ScrollPane{
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
-        contentBox.getChildren().add(lineChart);
+//        contentBox.getChildren().add(lineChart);
 
         
         
@@ -232,15 +236,37 @@ public class PodDetailsPane extends ScrollPane{
                 }
             })
         );
-
-        // Run memory timeline forever
+        
+		// Run memory timeline forever
         timeline2.setCycleCount(Animation.INDEFINITE);
         timeline2.play();
 
-        contentBox.getChildren().add(lineChart2);
+		// Create VBox for charts
+		VBox chartVBox = new VBox(20);
+		chartVBox.getChildren().addAll(lineChart, lineChart2);
+
+		// Create grid pane for labels and charts
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(20); // Horizontal gap between columns
+		gridPane.setVgap(10); // Vertical gap between rows
+
+		// Set column constraints: 30% for labels, 70% for charts
+		ColumnConstraints col1 = new ColumnConstraints();
+		col1.setPercentWidth(30);
+
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setPercentWidth(70);
+
+		gridPane.getColumnConstraints().addAll(col1, col2);
+
+		gridPane.add(labelsBox, 0, 0); // Add labelsBox to column 0, row 0
+		gridPane.add(chartVBox, 1, 0);  // Add chartVBox to column 1, row 0
+
+		// Add GridPane to main container (below back button and title)
+		mainContainer.getChildren().add(gridPane);
 
 		// Set the content of the ScrollPane
-		setContent(contentBox);
+		setContent(mainContainer);
 
 		// Configure ScrollPane properties
 		setFitToWidth(true);
