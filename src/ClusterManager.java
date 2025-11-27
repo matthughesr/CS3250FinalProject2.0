@@ -1,7 +1,15 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1Deployment;
+import javafx.event.ActionEvent;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 //Business logic class for managing Kubernetes clusters
 // This is a new class that is key for seperating GUI and buisness logic
@@ -137,6 +145,47 @@ public class ClusterManager {
 
         System.out.println("Deployment added to local cluster model: " + deploymentName);
     }
+    
+	public void saveYAML(String name, String namespace, Window callerWindow) {
+		// Get the YAML from kubernetes 
+		String yaml;
+		try {
+			yaml = apiInterface.fetchPodYaml(name, namespace);
+		}
+		catch (ApiException e) {
+			System.out.println("Failed to get pod yaml: " + e.getMessage());
+			e.printStackTrace();
+			return;
+		}
+		
+		// Filechooser for user to choose where to save yaml file
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("yaml files", "*.yaml");
+		fileChooser.setInitialFileName(name + "-" + namespace + ".yaml");
+		// Show dialog box to user
+		File file = fileChooser.showSaveDialog(callerWindow);
+		
+	    // User pressed cancel
+	    if (file == null) {
+	        System.out.println("Save canceled.");
+	        return;
+	    }
+	
+	    	// Write to file
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
+				
+					writer.write(yaml);
+					writer.newLine();
+					System.out.println("YAML written to: " + file.getAbsolutePath());
+			
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	
+	
 
     // Methods to collect metrics 
     public int getTotalNodeCount() {

@@ -8,6 +8,7 @@ import io.kubernetes.client.Metrics;
 import io.kubernetes.client.custom.PodMetrics;
 import io.kubernetes.client.custom.PodMetricsList;
 import io.kubernetes.client.custom.ContainerMetrics;
+import io.kubernetes.client.util.Yaml;
 
 // Regular imports
 import java.util.Map;
@@ -379,4 +380,34 @@ public class ApiInterface {
 
 		return deployment;
 	}
+	
+	
+
+	 /**
+	  * Fetches the YAML representation of a specific pod.
+	  *
+	  * @param podName Name of the pod
+	  * @param namespace Namespace of the pod
+	  * @return YAML string representation of the pod
+	  * @throws ApiException if the Kubernetes API call fails
+	  */
+	 public String fetchPodYaml(String podName, String namespace) throws ApiException{
+	     System.out.println("Fetching YAML for pod: " + podName + " in namespace: " + namespace);
+
+	     // Read the specific pod from Kubernetes
+	     V1Pod pod = coreApi.readNamespacedPod(
+	         podName,      // name of the pod
+	         namespace,    // namespace
+	         null          // pretty (optional pretty-print parameter)
+	     );
+
+	     if (pod == null) {
+	         throw new ApiException("Pod not found: " + podName);
+	     }
+
+	     // Convert V1Pod object to YAML string
+	     String yamlContent = Yaml.dump(pod);
+
+	     return yamlContent;
+	 }
 }

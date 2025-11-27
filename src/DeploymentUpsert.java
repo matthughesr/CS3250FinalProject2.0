@@ -58,42 +58,91 @@ public class DeploymentUpsert extends VBox {
         TextField deploymentNameTextField = new TextField();
         deploymentNameTextField.setMaxWidth(250);
 
-        // Image
+        // Image (editable dropdown with common images)
         Label imageLabel = new Label("Image:");
-        TextField imageTextField = new TextField();
-        imageTextField.setMaxWidth(250);
+        ComboBox<String> imageComboBox = new ComboBox<>();
+        imageComboBox.getItems().addAll(
+            "nginx",
+            "redis",
+            "postgres",
+            "mysql",
+            "mongo",
+            "httpd",
+            "alpine",
+            "ubuntu",
+            "busybox"
+        );
+        imageComboBox.setEditable(true); // Allow custom input
+        imageComboBox.setPromptText("Select or type custom image");
+        imageComboBox.setMaxWidth(250);
 
-        // CPU
-        Label cpuLabel = new Label("CPU:");
-        TextField cpuTextField = new TextField();
-        cpuTextField.setMaxWidth(250);
+        // CPU (dropdown with reasonable options)
+        Label cpuLabel = new Label("CPU (millicores):");
+        ComboBox<String> cpuComboBox = new ComboBox<>();
+        cpuComboBox.getItems().addAll(
+            "50",
+            "100",
+            "250",
+            "500",
+            "1000",
+            "2000"
+        );
+        cpuComboBox.setValue("100"); // Default value
+        cpuComboBox.setMaxWidth(250);
 
-        // Memory
-        Label memoryLabel = new Label("Memory:");
-        TextField memoryTextField = new TextField();
-        memoryTextField.setMaxWidth(250);
+        // Memory (dropdown with reasonable options in Mi)
+        Label memoryLabel = new Label("Memory (Mi):");
+        ComboBox<String> memoryComboBox = new ComboBox<>();
+        memoryComboBox.getItems().addAll(
+            "64",
+            "128",
+            "256",
+            "512",
+            "1024",
+            "2048"
+        );
+        memoryComboBox.setValue("128"); // Default value
+        memoryComboBox.setMaxWidth(250);
 
-        // Disk Space
-        Label diskLabel = new Label("Disk Space:");
-        TextField diskTextField = new TextField();
-        diskTextField.setMaxWidth(250);
+        // Disk Space (dropdown with reasonable options in Mi)
+        Label diskLabel = new Label("Disk Space (Mi):");
+        ComboBox<String> diskComboBox = new ComboBox<>();
+        diskComboBox.getItems().addAll(
+            "128",
+            "256",
+            "512",
+            "1024",
+            "2048",
+            "4096"
+        );
+        diskComboBox.setValue("512"); // Default value
+        diskComboBox.setMaxWidth(250);
 
-        // Replicas
+        // Replicas (dropdown with reasonable options)
         Label replicasLabel = new Label("Replicas:");
-        TextField replicasTextField = new TextField();
-        replicasTextField.setMaxWidth(250);
+        ComboBox<String> replicasComboBox = new ComboBox<>();
+        replicasComboBox.getItems().addAll(
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "10"
+        );
+        replicasComboBox.setValue("2"); // Default value
+        replicasComboBox.setMaxWidth(250);
         
         // Create button. This will validate the input and create deployment object
         Button createButton = new Button("Create");
         createButton.setOnAction(event -> {
         	errorLabel.setText(""); // clear out old errors
-        	// Get info from text box
+        	// Get info from combo boxes and text fields
             String selectedClusterName = clusterComboBox.getValue();
             String name = deploymentNameTextField.getText();
-            String image = imageTextField.getText();
-            String cpu = cpuTextField.getText();
-            String memory = memoryTextField.getText();
-            String diskSpace = diskTextField.getText();
+            String image = imageComboBox.getValue();
+            String cpu = cpuComboBox.getValue();
+            String memory = memoryComboBox.getValue();
+            String diskSpace = diskComboBox.getValue();
             int replicas;
 
             // Validate the data
@@ -102,31 +151,36 @@ public class DeploymentUpsert extends VBox {
                 return;
             }
 
-            if (name.isEmpty()) {
+            if (name == null || name.isEmpty()) {
                 errorLabel.setText("Deployment name cannot be empty!");
                 return;
             }
 
-            if (image.isEmpty()) {
+            if (image == null || image.trim().isEmpty()) {
             	errorLabel.setText("Image cannot be empty!");
                 return;
             }
 
-            if (!cpu.matches("\\d+")) {
+            if (cpu == null || !cpu.matches("\\d+")) {
             	errorLabel.setText("CPU must be a number!");
                 return;
             }
-            if (!memory.matches("\\d+")) {
+            if (memory == null || !memory.matches("\\d+")) {
             	errorLabel.setText("Memory must be a number!");
                 return;
             }
-            if (!diskSpace.matches("\\d+")) {
+            if (diskSpace == null || !diskSpace.matches("\\d+")) {
             	errorLabel.setText("Disk space must be a number!");
                 return;
             }
 
             try {
-            	replicas = Integer.parseInt(replicasTextField.getText().trim());
+            	String replicasValue = replicasComboBox.getValue();
+            	if (replicasValue == null || replicasValue.trim().isEmpty()) {
+            		errorLabel.setText("Please select number of replicas!");
+            		return;
+            	}
+            	replicas = Integer.parseInt(replicasValue.trim());
             	if (replicas < 1) {
             		errorLabel.setText("Replicas must be at least 1!");
             		return;
@@ -201,15 +255,15 @@ public class DeploymentUpsert extends VBox {
             , deploymentNameLabel
             , deploymentNameTextField
             , imageLabel
-            , imageTextField
+            , imageComboBox
             , cpuLabel
-            , cpuTextField
+            , cpuComboBox
             , memoryLabel
-            , memoryTextField
+            , memoryComboBox
             , diskLabel
-            , diskTextField
+            , diskComboBox
             , replicasLabel
-            , replicasTextField
+            , replicasComboBox
             , createButton
         );
     }
