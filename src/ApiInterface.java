@@ -254,4 +254,129 @@ public class ApiInterface {
 			return null;
 		}
 	}
+
+	/**
+	 * Creates a new deployment in the specified namespace.
+	 *
+	 * @param deploymentName Name of the deployment
+	 * @param image Container image to use
+	 * @param replicas Number of pod replicas
+	 * @param cpu CPU request/limit in millicores (e.g., "500m")
+	 * @param memory Memory request/limit (e.g., "512Mi")
+	 * @param diskSpace Ephemeral storage request/limit (e.g., "256Mi")
+	 * @param namespace Kubernetes namespace (use "default")
+	 * @return V1Deployment object representing the created deployment
+	 * @throws ApiException if the Kubernetes API call fails
+	 */
+	public V1Deployment createDeployment(
+			String deploymentName,
+			String image,
+			int replicas,
+			String cpu,
+			String memory,
+			String diskSpace,
+			String namespace) throws ApiException {
+
+		System.out.println("Creating deployment: " + deploymentName);
+
+		// Build the V1Deployment object
+		V1Deployment deployment = buildDeploymentObject(
+			deploymentName, image, replicas, cpu, memory, diskSpace, namespace
+		);
+
+		// Call Kubernetes API to create the deployment
+		V1Deployment createdDeployment = appsApi.createNamespacedDeployment(
+			namespace,      // namespace
+			deployment,     // body (the V1Deployment object)
+			null,          // pretty
+			null,          // dryRun
+			null,          // fieldManager
+			null           // fieldValidation
+		);
+
+		System.out.println("Deployment created successfully: " + deploymentName);
+
+		return createdDeployment;
+	}
+
+	/**
+	 * Helper method to build a V1Deployment object from deployment parameters.
+	 * CRITICAL: Ensures label selector matches pod template labels.
+	 */
+	private V1Deployment buildDeploymentObject(
+			String deploymentName,
+			String image,
+			int replicas,
+			String cpu,
+			String memory,
+			String diskSpace,
+			String namespace) {
+
+		// 1. Create labels for selector matching (CRITICAL!)
+		Map<String, String> labels = new HashMap<>();
+		labels.put("app", deploymentName);
+
+		// 2. Create metadata
+		V1ObjectMeta metadata = new V1ObjectMeta()
+			.name(deploymentName)
+			.namespace(namespace);
+
+		// 3. Create label selector (must match pod template labels!)
+		V1LabelSelector selector = new V1LabelSelector()
+			.matchLabels(labels);
+
+		// 4. Create resource requirements
+		Map<String, Quantity> requests = new HashMap<>();
+		Map<String, Quantity> limits = new HashMap<>();
+
+		// Add CPU and memory
+		requests.put("cpu", new Quantity(cpu));
+		requests.put("memory", new Quantity(memory));
+		limits.put("cpu", new Quantity(cpu));
+		limits.put("memory", new Quantity(memory));
+
+		// Add disk space as ephemeral-storage if provided
+		if (diskSpace != null && !diskSpace.isEmpty() && !diskSpace.equals("0Mi")) {
+			requests.put("ephemeral-storage", new Quantity(diskSpace));
+			limits.put("ephemeral-storage", new Quantity(diskSpace));
+		}
+
+		V1ResourceRequirements resources = new V1ResourceRequirements()
+			.requests(requests)
+			.limits(limits);
+
+		// 5. Create container
+		V1Container container = new V1Container()
+			.name(deploymentName + "-container")
+			.image(image)
+			.resources(resources);
+
+		// 6. Create pod template metadata (with matching labels!)
+		V1ObjectMeta podMetadata = new V1ObjectMeta()
+			.labels(labels);
+
+		// 7. Create pod spec
+		V1PodSpec podSpec = new V1PodSpec()
+			.containers(List.of(container));
+
+		// 8. Create pod template
+		V1PodTemplateSpec podTemplate = new V1PodTemplateSpec()
+			.metadata(podMetadata)
+			.spec(podSpec);
+
+		// 9. Create deployment spec
+		V1DeploymentSpec deploymentSpec = new V1DeploymentSpec()
+			.replicas(replicas)
+			.selector(selector)
+			.template(podTemplate);
+
+		// 10. Create final deployment object
+		V1Deployment deployment = new V1Deployment()
+			.apiVersion("apps/v1")
+			.kind("Deployment")
+			.metadata(metadata)
+			.spec(deploymentSpec);
+
+		return deployment;
+	}
 }

@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import io.kubernetes.client.openapi.ApiException;
 
 public class DeploymentUpsert extends VBox {
     private ClusterManager clusterManager;
@@ -134,47 +135,63 @@ public class DeploymentUpsert extends VBox {
             	errorLabel.setText("Replicas must be a number!");
             	return;
             }
-            // Create the deployment object
-            Deployment deployment = new Deployment(name, image, replicas);
-            deployment.setCpu(cpu);
-            deployment.setMemory(memory);
-            deployment.setDiskSpace(diskSpace);
 
-            // Add deployment to the selected cluster using business logic layer
-            clusterManager.addDeploymentToCluster(selectedClusterName, deployment);
-            
-            // Create nodes on cluster if none
-            Cluster cluster = clusterManager.getClusterByName(selectedClusterName);
-            if(cluster.getNodeCount() == 0) {
-            	Node newNode = new Node("NewNode", "AMD");
-            	cluster.addNode(newNode);
-            	
-            	// Add pods to node
-            	for(int i = 0; i < replicas; i++) {
-            		Pod pod = new Pod(image + "Pod");
-            		newNode.addPod(pod); 
-            		Container container = new Container(image + "Container", image);
-            		pod.addContainer(container);
-            	}
+            // Create deployment via Kubernetes API
+            try {
+                // Call ClusterManager to create deployment in Kubernetes
+                clusterManager.createDeploymentInCluster(
+                    selectedClusterName,
+                    name,
+                    image,
+                    replicas,
+                    cpu,
+                    memory,
+                    diskSpace
+                );
+
+                // Show success dialog
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Success");
+                successAlert.setHeaderText("Deployment Created");
+                successAlert.setContentText(
+                    "Deployment '" + name + "' created successfully with " +
+                    replicas + " replicas."
+                );
+                successAlert.showAndWait();
+
+                // Refresh dashboard to show new deployment
+                mainBorderPane.refreshDefaultPane();
+
+                // Return to main view
+                goBack.run();
+
+            } catch (ApiException e) {
+                // Handle Kubernetes API errors
+                String errorMsg = getErrorMessage(e, name);
+
+                // Show error dialog
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Deployment Creation Failed");
+                errorAlert.setHeaderText("Failed to create deployment");
+                errorAlert.setContentText(errorMsg);
+                errorAlert.showAndWait();
+
+                // Also show in error label
+                errorLabel.setText("Error: " + errorMsg);
+
+                // Log detailed error for debugging
+                System.err.println("Failed to create deployment: " + e.getMessage());
+                e.printStackTrace();
+
+                // DO NOT call goBack() - keep user on form to fix issues
+
+            } catch (IllegalArgumentException e) {
+                // Cluster not found or other validation error
+                errorLabel.setText("Error: " + e.getMessage());
+            } catch (IllegalStateException e) {
+                // ApiInterface not set
+                errorLabel.setText("Error: " + e.getMessage());
             }
-            else {
-            	for(int i = 0; i < replicas; i++) {
-            		List<Node> nodeList = cluster.getNodes();
-            		Node node = nodeList.get(0);
-            		Pod pod = new Pod(image + "Pod");
-            		
-            		node.addPod(pod);
-            		Container container = new Container(image + "Container", image);
-            		pod.addContainer(container);
-            	}
-            	
-            }
-            
-            
-            mainBorderPane.refreshDefaultPane();
-            
-            
-			goBack.run(); // Go back to default center pane
         });
 
         // Add everything
@@ -196,5 +213,30 @@ public class DeploymentUpsert extends VBox {
             , createButton
         );
     }
- 
+
+    /**
+     * Converts Kubernetes ApiException to user-friendly error message.
+     */
+    private String getErrorMessage(ApiException e, String deploymentName) {
+        int code = e.getCode();
+
+        switch (code) {
+            case 409:
+                return "Deployment '" + deploymentName + "' already exists. Please choose a different name.";
+            case 400:
+                return "Invalid deployment configuration. Check your inputs.";
+            case 401:
+                return "Authentication failed. Check Kubernetes configuration.";
+            case 403:
+                return "Permission denied. Insufficient cluster permissions.";
+            case 422:
+                return "Deployment validation failed. Check resource values.";
+            case 500:
+            case 503:
+                return "Kubernetes server error. Please try again later.";
+            default:
+                return "Unexpected error (code " + code + "): " + e.getMessage();
+        }
+    }
+
 }
