@@ -110,6 +110,8 @@ public class MainBorderPane extends BorderPane{
 		//Button to create new deployment
 		Button createButton = new Button("Create Deployment");
 		createButton.getStyleClass().add("white-button");
+		createButton.setWrapText(true);
+
 		createButton.setOnAction(event -> {
 			// Create new pane to replace current center one
 			DeploymentUpsert deploymentPage = new DeploymentUpsert(() -> setCenter(scrollPane), clusterManager, this);
