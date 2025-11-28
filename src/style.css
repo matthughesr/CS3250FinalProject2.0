@@ -1,4 +1,8 @@
-/* PodDetailsPane CSS Styles */
+/* Custom font for entire site */
+* {
+    -fx-font-family: "Cutive Mono";
+}
+
 
 /* Remove dots from line chart data points */
 .chart-line-symbol {
@@ -79,10 +83,10 @@
 	-fx-padding: 10px 20px;
 }
 
-.back-button:hover {
+.button:hover {
     -fx-background-color: #2952cc;
 }
 
-.back-button:pressed {
+.button:pressed {
     -fx-background-color: #1e3d99;
 }

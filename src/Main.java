@@ -26,6 +26,7 @@ public class Main extends Application{
 		// Initialize cluster manager (business logic layer)
 		clusterManager = new ClusterManager();
 
+		
 		// AI citation: The following code was created with the help of Claude code. I will likely be changing this code later so it is just proof of concept right now
 		// Date: Oct 28
 		// Prompt:  Right now this application display to the user basic information about a kubernetes cluster. I am just using test data right
@@ -119,14 +120,17 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		// Load custom font 
+		FontLibrary.addFont("CutiveMono", "/Fonts/CutiveMono-Regular.ttf");
+
 		MainBorderPane pane = new MainBorderPane(clusterManager); // Pass cluster and cluster manager to MainBorderPane
 		Scene scene = new Scene(pane, 500, 500);
-		
+
 		// Add style sheet for global styles
 		// reference for css. https://docs.oracle.com/javafx/2/css_tutorial/jfxpub-css_tutorial.htm
 		String cssPath = new java.io.File("src/style.css").toURI().toString();
 		scene.getStylesheets().add(cssPath);
-		
+
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true); // fill the screen so I don't have to do it myself
 		primaryStage.show();
