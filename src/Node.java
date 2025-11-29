@@ -56,7 +56,11 @@ public class Node {
     public int getPodCount() {
         return pods.size();
     }
-    
+
+    public void clearPods() {
+        pods.clear();
+    }
+
     // Utility method
     public String toString() {
         return "Node{name='" + name + "', status='" + status + "', architecture='" + architecture + "', pods=" + pods.size() + "}";

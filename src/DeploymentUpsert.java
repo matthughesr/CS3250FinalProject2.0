@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -9,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import io.kubernetes.client.openapi.ApiException;
 
 public class DeploymentUpsert extends VBox {
@@ -73,19 +77,18 @@ public class DeploymentUpsert extends VBox {
         imageComboBox.getItems().addAll(
             "nginx",
             "redis",
-            "postgres",
-            "mysql",
+//            "postgres",
+//            "mysql",
             "mongo",
-            "httpd",
-            "alpine",
-            "ubuntu",
-            "busybox"
+            "httpd"
+//            "alpine"
+
         );
         imageComboBox.setEditable(true); // Allow custom input
         imageComboBox.setPromptText("Select or type custom image");
         imageComboBox.setMaxWidth(250);
 
-        // CPU (dropdown with reasonable options)
+        // CPU Dropdown
         Label cpuLabel = new Label("CPU (millicores):");
         ComboBox<String> cpuComboBox = new ComboBox<>();
         cpuComboBox.getItems().addAll(
@@ -99,7 +102,7 @@ public class DeploymentUpsert extends VBox {
         cpuComboBox.setValue("100"); // Default value
         cpuComboBox.setMaxWidth(250);
 
-        // Memory (dropdown with reasonable options in Mi)
+        // Memory (options in Mi)
         Label memoryLabel = new Label("Memory (Mi):");
         ComboBox<String> memoryComboBox = new ComboBox<>();
         memoryComboBox.getItems().addAll(
@@ -138,7 +141,7 @@ public class DeploymentUpsert extends VBox {
             "5",
             "10"
         );
-        replicasComboBox.setValue("2"); // Default value
+        replicasComboBox.setValue("1"); // Default value
         replicasComboBox.setMaxWidth(250);
         
         // Create button. This will validate the input and create deployment object
@@ -163,6 +166,19 @@ public class DeploymentUpsert extends VBox {
             if (name == null || name.isEmpty()) {
                 errorLabel.setText("Deployment name cannot be empty!");
                 return;
+            }
+            else {
+            	// Convert to lower(kubernetes does not allow uppercase in names)
+            	name = name.toLowerCase();
+            	
+            	//regex pattern for checking if it starts/ends with lower case
+            	// or digit. And only has a-z, 0-9 or -
+                Pattern regex = Pattern.compile("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$");
+                if(!regex.matcher(name).matches()) {
+                	errorLabel.setText(
+                	"Deployment name not valid. Can only contatin a-z letters, 0-9 numbers, and hyphens (-)");
+                return;
+                }
             }
 
             if (image == null || image.trim().isEmpty()) {
@@ -211,22 +227,24 @@ public class DeploymentUpsert extends VBox {
                     memory,
                     diskSpace
                 );
+                
+                // Show progress bar for a couple seconds, then show success
+                progressBar(() -> {
+                    // Show success dialog
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Success");
+                    successAlert.setHeaderText("Deployment Created");
+                    successAlert.setContentText(
+                        "Deployment created successfully "
+                    );
+                    successAlert.showAndWait();
 
-                // Show success dialog
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Success");
-                successAlert.setHeaderText("Deployment Created");
-                successAlert.setContentText(
-                    "Deployment '" + name + "' created successfully with " +
-                    replicas + " replicas."
-                );
-                successAlert.showAndWait();
+                    // Refresh dashboard to show new deployment
+                    mainBorderPane.refreshDefaultPane();
 
-                // Refresh dashboard to show new deployment
-                mainBorderPane.refreshDefaultPane();
-
-                // Return to main view
-                goBack.run();
+                    // Return to main view
+                    goBack.run();
+                }, 100);
 
             } catch (ApiException e) {
                 // Handle Kubernetes API errors
@@ -300,6 +318,42 @@ public class DeploymentUpsert extends VBox {
             default:
                 return "Unexpected error (code " + code + "): " + e.getMessage();
         }
+    }
+    
+    
+    private void progressBar(Runnable onComplete, int time) {
+        Stage owner = (Stage) getScene().getWindow();
+        ProgressWindow progressWindow = new ProgressWindow(owner);
+        progressWindow.show();
+
+        // Create background task to avoid freezing UI
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                // Animate progress 
+                for (int i = 0; i <= time; i++) {
+                    updateProgress(i, time);
+                    Thread.sleep(100); // 200ms x 10 = 2 seconds
+                }
+                return null;
+            }
+        };
+
+        // Update progress window as task progresses
+        task.progressProperty().addListener((obs, oldVal, newVal) -> {
+            progressWindow.update(newVal.doubleValue());
+        });
+
+        // When done, close window and run callback
+        task.setOnSucceeded(e -> {
+            progressWindow.dispose();
+            onComplete.run();
+        });
+
+        // Run in background thread
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
 }

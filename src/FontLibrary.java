@@ -4,6 +4,10 @@ import java.util.MissingResourceException;
 
 import javafx.scene.text.Font;
 
+
+/* 
+ * This code is adapted from the code written in class by Professor Rhodes
+ * */
 public class FontLibrary {
 	private static final HashMap<String, Font> fontMap = new HashMap<>();
 	private static double defaultSize = 12;

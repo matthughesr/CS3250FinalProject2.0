@@ -25,6 +25,7 @@ public class MainBorderPane extends BorderPane{
 	private ScrollPane scrollPane; // ScrollPane wrapper for the center content
 //	private Cluster cluster;
 	private ClusterManager clusterManager;
+	private Button refreshButton; // Refresh button for updating K8s data
 
 	public MainBorderPane(ClusterManager clusterManager) {
 //		this.cluster = cluster;
@@ -53,9 +54,19 @@ public class MainBorderPane extends BorderPane{
 		
         // ---------------- CENTER PANE ------------------------
         // This is where most things will happen. This pane will change a lot
+
+        //Button to refresh k8s data
+        refreshButton = new Button("Refresh");
+        refreshButton.getStyleClass().add("button");
+        refreshButton.setOnAction(event -> {
+	        refreshDefaultPane();
+	    	setCenter(scrollPane);
+        });
+
         defaultCenter = new VBox();
         defaultCenter.setStyle("-fx-background-color: #e5e7eb"); //dirty white
         defaultCenter.setPadding(new Insets(20));
+        
 
         // Wrap the content in a ScrollPane
         scrollPane = new ScrollPane(defaultCenter);
@@ -168,13 +179,33 @@ public class MainBorderPane extends BorderPane{
 		// Clear the current display
 		defaultCenter.getChildren().clear();
 
-		// Add title
+		// Create header HBox with title on left and refresh button on right
+		HBox headerBox = new HBox();
+		headerBox.setAlignment(Pos.CENTER_LEFT);
+		headerBox.setPadding(new Insets(0, 0, 15, 0)); // Bottom padding for spacing
+
 		Label titleLabel = new Label("All Clusters");
 		titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #111827;");
-		defaultCenter.getChildren().add(titleLabel);
+
+		// Spacer to push refresh button to the right
+		javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+		HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+		headerBox.getChildren().addAll(titleLabel, spacer, refreshButton);
+		defaultCenter.getChildren().add(headerBox);
 
 		// Get clusters from business logic layer
 		List<Cluster> clusters = clusterManager.getAllClusters();
+
+		// Refresh Kubernetes data for each cluster
+		try {
+			for (Cluster cluster : clusters) {
+				clusterManager.refreshK8s(cluster);
+			}
+		} catch (Exception e) {
+			System.err.println("Error refreshing Kubernetes data: " + e.getMessage());
+			e.printStackTrace();
+		}
 
 		// Loop through all clusters and display each one
 		if (clusters.isEmpty()) {

@@ -184,8 +184,27 @@ public class ClusterManager {
 				e.printStackTrace();
 			}
 		}
-	
-	
+
+	/**
+	 * Refreshes Kubernetes data for a cluster by clearing old data and fetching fresh data.
+	 *
+	 * @param cluster The cluster to refresh
+	 * @throws ApiException if Kubernetes API call fails
+	 */
+	public void refreshK8s(Cluster cluster) throws ApiException {
+		System.out.println("=== Refreshing Live Data from Kubernetes ===\n");
+
+		// Clear old data first to avoid duplicates
+		cluster.clearNodes();
+		cluster.clearDeployments();
+
+		// Fetch fresh data
+		apiInterface.fetchNodes(cluster);
+		apiInterface.fetchPods(cluster);
+		apiInterface.fetchDeployments(cluster);
+
+		System.out.println("\n=== Live Data Refreshed Successfully ===\n");
+	}
 
     // Methods to collect metrics 
     public int getTotalNodeCount() {
