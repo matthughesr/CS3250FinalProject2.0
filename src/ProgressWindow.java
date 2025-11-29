@@ -21,8 +21,8 @@ public class ProgressWindow extends Stage{
 		initOwner(owner);
 		initModality(Modality.WINDOW_MODAL);
 		initStyle(StageStyle.TRANSPARENT);
-		setHeight(340);
-		setWidth(130);
+		setHeight(150);
+		setWidth(250);
 		
 		HBox titleBar = new HBox(titleLabel);
 		HBox progressBox = new HBox(10, progressBar, percentLabel);

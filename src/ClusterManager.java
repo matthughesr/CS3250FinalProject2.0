@@ -205,6 +205,9 @@ public class ClusterManager {
 
 		System.out.println("\n=== Live Data Refreshed Successfully ===\n");
 	}
+	
+	
+	
 
     // Methods to collect metrics 
     public int getTotalNodeCount() {
