@@ -10,12 +10,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import io.kubernetes.client.openapi.ApiException;
 
-public class DeploymentUpsert extends VBox {
+public class DeploymentUpsert extends ScrollPane {
     private ClusterManager clusterManager;
     private MainBorderPane mainBorderPane;
 
@@ -25,16 +27,24 @@ public class DeploymentUpsert extends VBox {
     public DeploymentUpsert(Runnable goBack, ClusterManager clusterManager, MainBorderPane mainBorderPane) {
         this.clusterManager = clusterManager;
         this.mainBorderPane = mainBorderPane;
-    	//styling 
-        setSpacing(15);
-        setPadding(new Insets(20));
-        setStyle("-fx-background-color: #e5e7eb"); //dirty white
-        
+
+        // Scroll faster
+        addEventFilter(ScrollEvent.SCROLL, event -> {
+            double delta = event.getDeltaY() * 6; // Increase multiplier for faster scrolling
+            setVvalue(getVvalue() - delta / getContent().getBoundsInLocal().getHeight());
+            event.consume();
+        });
+
+        // Create main container for everything
+        VBox mainContainer = new VBox(15);
+        mainContainer.setPadding(new Insets(20));
+        mainContainer.setStyle("-fx-background-color: #e5e7eb"); //dirty white
+
 		// Back button
 		Button backButton = new Button("Back");
 		backButton.getStyleClass().add("button");
 		backButton.setOnAction(e -> goBack.run());
-			
+
 		// HBox for back button
 		HBox backButtonBox = new HBox(backButton);
 		backButtonBox.setAlignment(Pos.TOP_RIGHT);
@@ -47,7 +57,7 @@ public class DeploymentUpsert extends VBox {
 
         HBox titleBox = new HBox(titleLabel, errorLabel); // Add labels to HBox pane
         titleBox.setAlignment(Pos.CENTER); // Center the title horizontally
-        getChildren().addAll(backButtonBox,titleBox, errorLabel);
+        mainContainer.getChildren().addAll(backButtonBox,titleBox, errorLabel);
 
         // This is the main part of the form
         // This is where I will collect user input
@@ -276,7 +286,7 @@ public class DeploymentUpsert extends VBox {
         });
 
         // Add everything
-        getChildren().addAll(
+        mainContainer.getChildren().addAll(
             clusterLabel
             , clusterComboBox
             , deploymentNameLabel
@@ -293,6 +303,13 @@ public class DeploymentUpsert extends VBox {
             , replicasComboBox
             , createButton
         );
+
+        // Set the content of the ScrollPane
+        setContent(mainContainer);
+
+        // Configure ScrollPane properties
+        setFitToWidth(true);
+        setPannable(true);
     }
 
     /**
