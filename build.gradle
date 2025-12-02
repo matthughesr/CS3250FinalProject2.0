@@ -31,6 +31,11 @@ sourceSets {
         java {
             srcDirs = ['src']
         }
+        resources {
+            srcDirs = ['src']
+            include 'Fonts/**'
+            include '**/*.css'
+        }
     }
 }
 

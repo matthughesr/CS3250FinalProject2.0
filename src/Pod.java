@@ -78,4 +78,6 @@ public class Pod {
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
 	}
+	
+
 }

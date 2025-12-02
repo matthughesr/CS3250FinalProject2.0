@@ -51,7 +51,15 @@ public class Cluster {
     public int getDeploymentCount() {
         return deployments.size();
     }
-    
+
+    public void clearNodes() {
+        nodes.clear();
+    }
+
+    public void clearDeployments() {
+        deployments.clear();
+    }
+
     // Utility methods for dashboard
     public int getTotalPodCount() {
         int totalPods = 0;

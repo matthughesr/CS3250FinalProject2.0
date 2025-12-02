@@ -28,7 +28,8 @@ import javafx.scene.input.ScrollEvent;
 public class PodDetailsPane extends ScrollPane{
 	private MainBorderPane mainBorderPane;
 
-	public PodDetailsPane(Runnable goBack,Pod pod, MainBorderPane mainBorderPane) {
+
+	public PodDetailsPane(Runnable goBack, Pod pod, MainBorderPane mainBorderPane) {
 		this.mainBorderPane = mainBorderPane;
 
 		// Scroll faster
@@ -45,7 +46,14 @@ public class PodDetailsPane extends ScrollPane{
 		Button backButton = new Button("Back");
 		backButton.getStyleClass().add("button");
 		backButton.setOnAction(e -> goBack.run());
-
+		
+//		Button refreshButton = new Button("Refresh");
+//		refreshButton.getStyleClass().add("button");
+//		refreshButton.setOnAction(event -> {
+//	        refreshDefaultPane();
+//	    	setCenter(scrollPane);
+//        });
+//			
 		// HBox for back button
 		HBox backButtonBox = new HBox(backButton);
 		backButtonBox.setAlignment(Pos.TOP_RIGHT);
@@ -88,9 +96,28 @@ public class PodDetailsPane extends ScrollPane{
 
 		Label diskSpaceLabel = new Label("Disk Space: " + pod.getDiskSpace());
 		diskSpaceLabel.getStyleClass().add("info-label");
+		
+		Label podStatusLabel = new Label("Status: " + pod.getStatus());
+		podStatusLabel.getStyleClass().add("info-label");
+		
+		// Button to export the YAML to file for specific pod
+		Button exportButton = new Button("Export YAML");
+		exportButton.getStyleClass().add("button");
+		exportButton.setOnAction(e -> mainBorderPane.getClusterManager().saveYAML(
+				pod.getName(), pod.getNamespace(), exportButton.getScene().getWindow())
+				);
 
 		// Add all labels to the labels box
-		labelsBox.getChildren().addAll(podSectionLabel, namespaceLabel, ipLabel, diskSpaceLabel, nodeLabel, cpuLabel, memoryLabel);
+		labelsBox.getChildren().addAll(
+				podSectionLabel
+				, namespaceLabel
+				, podStatusLabel
+				, ipLabel
+				, diskSpaceLabel
+				, nodeLabel
+				, cpuLabel
+				, memoryLabel
+				, exportButton);
 
 		Label containerDetailsLabel = new Label("Container Details");
 		containerDetailsLabel.getStyleClass().add("section-header");
@@ -105,9 +132,9 @@ public class PodDetailsPane extends ScrollPane{
 			containerName.getStyleClass().add("container-label");
 			Label containerImage = new Label("Image: " + container.getImage());
 			containerImage.getStyleClass().add("container-label");
-			Label containerStatus = new Label("Status: " + container.getStatus());
-			containerStatus.getStyleClass().add("container-label");
-			labelsBox.getChildren().addAll(containerName, containerImage, containerStatus);
+//			Label containerStatus = new Label("Status: " + container.getStatus());
+//			containerStatus.getStyleClass().add("container-label");
+			labelsBox.getChildren().addAll(containerName, containerImage);
 		}
 
 
