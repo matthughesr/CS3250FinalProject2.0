@@ -18,63 +18,53 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application{
-//	private static Cluster cluster;
-//	private static Cluster cluster2;
 	private static ClusterManager clusterManager;
 
 	public static void main(String[] args) {
-		// Initialize cluster manager (business logic layer)
-		clusterManager = new ClusterManager();
-
 		
+
 		// AI citation: The following code was created with the help of Claude code. I will likely be changing this code later so it is just proof of concept right now
 		// Date: Oct 28
 		// Prompt:  Right now this application display to the user basic information about a kubernetes cluster. I am just using test data right
 		//now. My goal is to display actual live data from this minikube cluster usig the kubernetes java client.  How can I use the kubernetes java client to do this?
 		/// Integration: Used as a starting point to interact with a live kubernetes cluster. I leaned on AI here so I can learn how to use this API since documation is not well written and avaliable
-
+		
+		// Revised AI citation (Dec1): Some of the code here is left over from AI but has been modified significicently my Matt since Oc2 28 ^^^
 		try {
-			// Step 1: Locate and load the kubeconfig file
+		// Step 1: Locate and load the kubeconfig file
 			Path kubeConfigPath = getDefaultKubeconfigPath();
-			System.out.println("Using kubeconfig: " + kubeConfigPath);
-
-			// Step 2: Parse kubeconfig and create authenticated API client
+		
+		// Step 2: Parse kubeconfig and create authenticated API client (needed so API calls to cluster will work)
 			ApiClient client;
+			// Read kubeconfig file
 			try (FileReader fileReader = new FileReader(kubeConfigPath.toFile())) {
-				KubeConfig kubeConfig = KubeConfig.loadKubeConfig(fileReader);
-				client = ClientBuilder.kubeconfig(kubeConfig).build();
-				Configuration.setDefaultApiClient(client);
-			}
-
-			// Step 3: Create API instances
-			CoreV1Api coreApi = new CoreV1Api();
-			AppsV1Api appsApi = new AppsV1Api();
-			Metrics metricsApi = new Metrics(client);
-
-			// Step 4: Create ApiInterface to interact with Kubernetes
+					KubeConfig kubeConfig = KubeConfig.loadKubeConfig(fileReader);
+					client = ClientBuilder.kubeconfig(kubeConfig).build();
+					Configuration.setDefaultApiClient(client);
+				}
+			
+		// Step 3: Create API instances
+			CoreV1Api coreApi = new CoreV1Api(); // for pods, nodes, namespaces, services, configmaps, secrets
+			AppsV1Api appsApi = new AppsV1Api(); //  workload resources (Deployments, ReplicaSets, StatefulSets, DaemonSets
+			Metrics metricsApi = new Metrics(client); // For metrics
+			
+		// Step 4: Create ApiInterface to interact with Kubernetes
 			ApiInterface apiInterface = new ApiInterface(coreApi, appsApi, metricsApi);
-			clusterManager.setApiInterface(apiInterface);
 
-			// Step 5: Create cluster from real Kubernetes cluster
-			String clusterName = "Minikube"; // You can get this from kubeconfig context
-			Cluster cluster = new Cluster(clusterName);
-			clusterManager.addCluster(cluster);
+			// Initialize cluster manager (business logic layer)
+			clusterManager = new ClusterManager();
+			clusterManager.setApiInterface(apiInterface); // inject dependecies
+
+		// Step 5: Create cluster from real Kubernetes cluster
+			String clusterName = "Minikube"; // You can get this from kubeconfig context but we will default to this name
+			Cluster cluster = new Cluster(clusterName); // Initialize cluster
+			clusterManager.addCluster(cluster); // Add cluster 
 
 			System.out.println("=== Fetching Live Data from Kubernetes ===\n");
 
-			// Step 6: Fetch cluster data using ApiInterface
-			apiInterface.fetchNodes(cluster);
-			apiInterface.fetchPods(cluster);
-			apiInterface.fetchDeployments(cluster);
+		// Step 6: Fetch cluster data using ApiInterface
+			clusterManager.refreshK8s(cluster);
 
-			System.out.println("\n=== Live Data Loaded Successfully ===\n");
-
-			// Create dashboard with cluster relationship
-			Dashboard dashboard = new Dashboard("Kubernetes Dashboard", cluster);
-
-			// Display cluster information
-			System.out.println(cluster);
-			dashboard.displayDashboard();
 
 		} catch (ApiException e) {
 			// Handle Kubernetes API-specific errors
@@ -115,11 +105,14 @@ public class Main extends Application{
 		if (!Files.exists(path)) {
 			throw new IllegalStateException("kubeconfig not found at " + path + ". Ensure kubectl is configured (minikube)." );
 		}
+		System.out.println("Using kubeconfig: " + path);
+
 		return path;
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
 		// Load custom font 
 		FontLibrary.addFont("CutiveMono", "/Fonts/CutiveMono-Regular.ttf");
 
