@@ -23,16 +23,14 @@ import javafx.scene.layout.VBox;
 public class MainBorderPane extends BorderPane{
 	private VBox defaultCenter; // this is the "main" center pane content
 	private ScrollPane scrollPane; // ScrollPane wrapper for the center content
-//	private Cluster cluster;
 	private ClusterManager clusterManager;
 	private Button refreshButton; // Refresh button for updating K8s data
 
 	public MainBorderPane(ClusterManager clusterManager) {
-//		this.cluster = cluster;
 		this.clusterManager = clusterManager;
 		
 
-		/// ----------- TOP PANE ------------------------------------
+	/// ----------- TOP PANE ------------------------------------
 		// THis pane will be used for the header. It won't change much
 		HBox topPane = new HBox();
 		topPane.setPrefHeight(75);
@@ -52,7 +50,7 @@ public class MainBorderPane extends BorderPane{
         topPane.getChildren().add(headerLabel); 
         setTop(topPane);
 		
-        // ---------------- CENTER PANE ------------------------
+    // ---------------- CENTER PANE ------------------------
         // This is where most things will happen. This pane will change a lot
 
         //Button to refresh k8s data
@@ -86,7 +84,7 @@ public class MainBorderPane extends BorderPane{
 		setCenter(scrollPane);
 		
 		
-		// ----------- BOTTOM PANE ------------------------------
+	// ----------- BOTTOM PANE ------------------------------
 		// This is going to be used for the footer. Will stay pretty static
 		HBox bottomPane = new HBox();
 		bottomPane.setAlignment(Pos.CENTER);
@@ -100,7 +98,7 @@ public class MainBorderPane extends BorderPane{
 		setBottom(bottomPane);
 		
 		
-		// -------------- LEFT PANE ------------------------
+	// -------------- LEFT PANE ------------------------
 		// This pane is used for navigation. 
 		VBox leftPane = new VBox(20); //20 sets the padding between nodes
 		leftPane.setPadding(new Insets(20, 20, 20, 20));
@@ -129,21 +127,21 @@ public class MainBorderPane extends BorderPane{
 			setCenter(deploymentPage);
 	    });
 		
-		Label optionsLabel = new Label("Options");
+		// Label optionsLabel = new Label("Options");
 		
 		// Check Boxes
 		// Will be used to filter what is displayed
-		CheckBox podsCheck = new CheckBox("Pods");
-		CheckBox deploymentCheck = new CheckBox("Deployment");
-		CheckBox containerCheck = new CheckBox("Container");
-		CheckBox statsCheck = new CheckBox("Stats");
-		String checkBoxStyle = "-fx-text-fill: #f4f4f5; -fx-font-size: 16px; -fx-font-weight: bold;";
-		podsCheck.setStyle(checkBoxStyle);
-		deploymentCheck.setStyle(checkBoxStyle);
-		containerCheck.setStyle(checkBoxStyle);
-		statsCheck.setStyle(checkBoxStyle);
+		// CheckBox podsCheck = new CheckBox("Pods");
+		// CheckBox deploymentCheck = new CheckBox("Deployment");
+		// CheckBox containerCheck = new CheckBox("Container");
+		// CheckBox statsCheck = new CheckBox("Stats");
+		// String checkBoxStyle = "-fx-text-fill: #f4f4f5; -fx-font-size: 16px; -fx-font-weight: bold;";
+		// podsCheck.setStyle(checkBoxStyle);
+		// deploymentCheck.setStyle(checkBoxStyle);
+		// containerCheck.setStyle(checkBoxStyle);
+		// statsCheck.setStyle(checkBoxStyle);
 		
-		optionsLabel.setStyle("-fx-text-fill: #f4f4f5; -fx-font-size: 18px;");
+		// optionsLabel.setStyle("-fx-text-fill: #f4f4f5; -fx-font-size: 18px;");
 		
 		
 //		leftPane.getChildren().addAll(createClusterButton, createButton, optionsLabel, podsCheck, deploymentCheck, containerCheck, statsCheck); 
@@ -165,7 +163,7 @@ public class MainBorderPane extends BorderPane{
 	
 	
 
-    // Methods
+    // Methods -----------------------------------
 	
 	// Public facing method for updating center pane display
 	public void refreshDefaultPane() {
@@ -232,8 +230,12 @@ public class MainBorderPane extends BorderPane{
 			}
 		}
 	}
+
+
+
+
+
 	// This method will create a HBox to visually represent a pod
-	
 	private HBox createPodBox(Pod pod) {
 		HBox podBox = new HBox(10);
 		podBox.setPadding(new Insets(10));
@@ -277,6 +279,9 @@ public class MainBorderPane extends BorderPane{
 
 		return podBox;
 	}
+
+
+	
 	
 	// This method will create a HBox to visually represent a node
 	private FlowPane createNodeBox(Node node) {

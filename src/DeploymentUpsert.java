@@ -87,11 +87,8 @@ public class DeploymentUpsert extends ScrollPane {
         imageComboBox.getItems().addAll(
             "nginx",
             "redis",
-//            "postgres",
-//            "mysql",
             "mongo",
             "httpd"
-//            "alpine"
 
         );
         imageComboBox.setEditable(true); // Allow custom input
@@ -126,7 +123,7 @@ public class DeploymentUpsert extends ScrollPane {
         memoryComboBox.setValue("128"); // Default value
         memoryComboBox.setMaxWidth(250);
 
-        // Disk Space (dropdown with reasonable options in Mi)
+        // Disk Space dropdown 
         Label diskLabel = new Label("Disk Space (Mi):");
         ComboBox<String> diskComboBox = new ComboBox<>();
         diskComboBox.getItems().addAll(
@@ -140,7 +137,7 @@ public class DeploymentUpsert extends ScrollPane {
         diskComboBox.setValue("512"); // Default value
         diskComboBox.setMaxWidth(250);
 
-        // Replicas (dropdown with reasonable options)
+        // Replicas dropdown 
         Label replicasLabel = new Label("Replicas:");
         ComboBox<String> replicasComboBox = new ComboBox<>();
         replicasComboBox.getItems().addAll(
@@ -158,6 +155,7 @@ public class DeploymentUpsert extends ScrollPane {
         Button createButton = new Button("Create");
         createButton.setOnAction(event -> {
         	errorLabel.setText(""); // clear out old errors
+            
         	// Get info from combo boxes and text fields
             String selectedClusterName = clusterComboBox.getValue();
             String name = deploymentNameTextField.getText();

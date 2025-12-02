@@ -12,7 +12,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 //Business logic class for managing Kubernetes clusters
-// This is a new class that is key for seperating GUI and buisness logic
+// This class is key for seperating GUI and buisness logic
 // They key function of this class is keeping track of clusters
  
  
@@ -119,9 +119,9 @@ public class ClusterManager {
         }
 
         // 3. Format resource strings for Kubernetes
-        String cpuFormatted = cpu + "m";        // "500" -> "500m"
-        String memoryFormatted = memory + "Mi"; // "512" -> "512Mi"
-        String diskFormatted = diskSpace + "Mi"; // "256" -> "256Mi"
+        String cpuFormatted = cpu + "m";       
+        String memoryFormatted = memory + "Mi"; 
+        String diskFormatted = diskSpace + "Mi"; 
 
         // 4. Call ApiInterface to create in Kubernetes
         V1Deployment k8sDeployment = apiInterface.createDeployment(
@@ -135,7 +135,7 @@ public class ClusterManager {
         );
 
         // 5. Create local Deployment object and add to cluster
-        // Only do this if Kubernetes creation succeeded (no exception thrown)
+        // Only should happen if Kubernetes creation succeeded (no exception thrown)
         Deployment localDeployment = new Deployment(deploymentName, image, replicas);
         localDeployment.setCpu(cpu);
         localDeployment.setMemory(memory);
@@ -143,8 +143,9 @@ public class ClusterManager {
 
         cluster.addDeployment(localDeployment);
 
-        System.out.println("Deployment added to local cluster model: " + deploymentName);
+        System.out.println("Deployment added to local cluster: " + deploymentName);
     }
+    
     
 	public void saveYAML(String name, String namespace, Window callerWindow) {
 		// Get the YAML from kubernetes 
