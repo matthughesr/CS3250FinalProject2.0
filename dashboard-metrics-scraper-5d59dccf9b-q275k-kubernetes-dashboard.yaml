@@ -1,0 +1,262 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: runtime/default
+  creationTimestamp: '2025-10-20T16:09:58Z'
+  generateName: dashboard-metrics-scraper-5d59dccf9b-
+  generation: 1
+  labels:
+    k8s-app: dashboard-metrics-scraper
+    pod-template-hash: 5d59dccf9b
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:seccomp.security.alpha.kubernetes.io/pod: {}
+        f:generateName: {}
+        f:labels:
+          .: {}
+          f:k8s-app: {}
+          f:pod-template-hash: {}
+        f:ownerReferences:
+          .: {}
+          k:{"uid":"f2c63d73-85d3-4f6a-b191-2af43994e07d"}: {}
+      f:spec:
+        f:containers:
+          k:{"name":"dashboard-metrics-scraper"}:
+            .: {}
+            f:image: {}
+            f:imagePullPolicy: {}
+            f:livenessProbe:
+              .: {}
+              f:failureThreshold: {}
+              f:httpGet:
+                .: {}
+                f:path: {}
+                f:port: {}
+                f:scheme: {}
+              f:initialDelaySeconds: {}
+              f:periodSeconds: {}
+              f:successThreshold: {}
+              f:timeoutSeconds: {}
+            f:name: {}
+            f:ports:
+              .: {}
+              k:{"containerPort":8000,"protocol":"TCP"}:
+                .: {}
+                f:containerPort: {}
+                f:protocol: {}
+            f:resources: {}
+            f:securityContext:
+              .: {}
+              f:allowPrivilegeEscalation: {}
+              f:readOnlyRootFilesystem: {}
+              f:runAsGroup: {}
+              f:runAsUser: {}
+            f:terminationMessagePath: {}
+            f:terminationMessagePolicy: {}
+            f:volumeMounts:
+              .: {}
+              k:{"mountPath":"/tmp"}:
+                .: {}
+                f:mountPath: {}
+                f:name: {}
+        f:dnsPolicy: {}
+        f:enableServiceLinks: {}
+        f:nodeSelector: {}
+        f:restartPolicy: {}
+        f:schedulerName: {}
+        f:securityContext: {}
+        f:serviceAccount: {}
+        f:serviceAccountName: {}
+        f:terminationGracePeriodSeconds: {}
+        f:tolerations: {}
+        f:volumes:
+          .: {}
+          k:{"name":"tmp-volume"}:
+            .: {}
+            f:emptyDir: {}
+            f:name: {}
+    manager: kube-controller-manager
+    operation: Update
+    time: '2025-10-20T16:09:58Z'
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        f:conditions:
+          k:{"type":"ContainersReady"}:
+            .: {}
+            f:lastProbeTime: {}
+            f:lastTransitionTime: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"Initialized"}:
+            .: {}
+            f:lastProbeTime: {}
+            f:lastTransitionTime: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"PodReadyToStartContainers"}:
+            .: {}
+            f:lastProbeTime: {}
+            f:lastTransitionTime: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"Ready"}:
+            .: {}
+            f:lastProbeTime: {}
+            f:lastTransitionTime: {}
+            f:status: {}
+            f:type: {}
+        f:containerStatuses: {}
+        f:hostIP: {}
+        f:hostIPs: {}
+        f:phase: {}
+        f:podIP: {}
+        f:podIPs:
+          .: {}
+          k:{"ip":"10.244.0.173"}:
+            .: {}
+            f:ip: {}
+        f:startTime: {}
+    manager: kubelet
+    operation: Update
+    subresource: status
+    time: '2025-12-03T15:32:28Z'
+  name: dashboard-metrics-scraper-5d59dccf9b-q275k
+  namespace: kubernetes-dashboard
+  ownerReferences:
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    blockOwnerDeletion: true
+    controller: true
+    name: dashboard-metrics-scraper-5d59dccf9b
+    uid: f2c63d73-85d3-4f6a-b191-2af43994e07d
+  resourceVersion: '254606'
+  uid: 833e84e4-7140-4d13-8416-f932dfbbf6cb
+spec:
+  containers:
+  - image: docker.io/kubernetesui/metrics-scraper:v1.0.8@sha256:76049887f07a0476dc93efc2d3569b9529bf982b22d29f356092ce206e98765c
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /
+        port: 8000
+        scheme: HTTP
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 30
+    name: dashboard-metrics-scraper
+    ports:
+    - containerPort: 8000
+      protocol: TCP
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsGroup: 2001
+      runAsUser: 1001
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /tmp
+      name: tmp-volume
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-npz78
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: minikube
+  nodeSelector:
+    kubernetes.io/os: linux
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: kubernetes-dashboard
+  serviceAccountName: kubernetes-dashboard
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - emptyDir: {}
+    name: tmp-volume
+  - name: kube-api-access-npz78
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - type: PodReadyToStartContainers
+    lastTransitionTime: '2025-12-03T15:32:15Z'
+    status: 'True'
+  - type: Initialized
+    lastTransitionTime: '2025-10-20T16:09:58Z'
+    status: 'True'
+  - type: Ready
+    lastTransitionTime: '2025-12-03T15:32:15Z'
+    status: 'True'
+  - type: ContainersReady
+    lastTransitionTime: '2025-12-03T15:32:15Z'
+    status: 'True'
+  - type: PodScheduled
+    lastTransitionTime: '2025-10-20T16:09:58Z'
+    status: 'True'
+  containerStatuses:
+  - containerID: docker://4e778c018a305903d999fc000e9ccbe1b648c4422659328f2bbb61665d986fa3
+    image: sha256:115053965e86b2df4d78af78d7951b8644839d20a03820c6df59a261103315f7
+    imageID: docker-pullable://kubernetesui/metrics-scraper@sha256:76049887f07a0476dc93efc2d3569b9529bf982b22d29f356092ce206e98765c
+    lastState:
+      terminated:
+        containerID: docker://dfe6d6f5f5eb97b43dbfcba3ec077f55b943ed7be09d8b8c48acf8f2bcf39cce
+        exitCode: 2
+        finishedAt: '2025-12-03T15:31:46Z'
+        reason: Error
+        startedAt: '2025-12-02T02:51:34Z'
+    name: dashboard-metrics-scraper
+    ready: true
+    resources: {}
+    restartCount: 21
+    started: true
+    state:
+      running:
+        startedAt: '2025-12-03T15:32:08Z'
+  hostIP: 192.168.49.2
+  phase: Running
+  podIP: 10.244.0.173
+  podIPs:
+  - ip: 10.244.0.173
+  qosClass: BestEffort
+  startTime: '2025-10-20T16:09:58Z'
+

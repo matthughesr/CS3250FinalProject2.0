@@ -1,0 +1,31 @@
+TODO:
+- Add progress bar to refresh button
+
+
+
+
+
+
+
+super block
+inode bitmap
+data bitmap
+data block; real data
+
+strace
+
+sem_wait()
+pthread_cond_wait()
+lock: mutural exclusiton, fairness, performance
+IO: status, command, data
+busses: serial/parallel, sync, async, high low speed
+polling, programmedio, interrupts, DMA, device drivers
+files/ dirs.
+vmstat , stat, ls- 
+permissions, cd mkdir
+open(), read(), write(), lseek(), close(),
+No questions on opening and closing files
+seek time, rorational latency, transfer time
+raid
+
+code inside chapters

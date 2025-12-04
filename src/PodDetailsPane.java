@@ -132,6 +132,7 @@ public class PodDetailsPane extends ScrollPane{
 			containerName.getStyleClass().add("container-label");
 			Label containerImage = new Label("Image: " + container.getImage());
 			containerImage.getStyleClass().add("container-label");
+			containerImage.setWrapText(true);
 //			Label containerStatus = new Label("Status: " + container.getStatus());
 //			containerStatus.getStyleClass().add("container-label");
 			labelsBox.getChildren().addAll(containerName, containerImage);
